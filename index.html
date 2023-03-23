@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Platform API UI</title>
+    <link rel="stylesheet" href="./css/tree.css">
+    <link rel="stylesheet" href="./css/main.css">
+  </head>
+  <body>
+    <h1>Pool Manager</h1>
+    <div class="header">
+      Org Slug: <input id="org_slug" class="small_input" type="text" value="">
+      API Key: <input id="api_key" class="large_input" type="text" value="">
+      <input id="org_slug" class="small_input" type="button" onclick="showAPI()" value="API">
+    </div>
+    <div class="my_row">
+      <div class="my_column left_col">
+        <ul id="tree_root" class="p-list-tree" aria-multiselectable="true" role="tree">
+        </ul>
+      </div>
+      <div class="my_column right_col">
+
+      <div class="container">
+        <div id="images_div" class="full" style="display: none;">
+          <H2>Images</H2>
+          <table id="images">
+            <thead>
+              <tr>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="machine_types_div" class="full" style="display: none;">
+          <H2>Machine Types</H2>
+          <table id="machine_types">
+            <thead>
+              <tr>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="machines_div" class="full" style="display: none;">
+        <H2>Virtual Machines</H2>
+        <table id="machines">
+          <thead>
+            <tr>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="pools_div" class="full" style="display: block;">
+        <H2>Pools</H2>
+        <table id="pools">
+          <thead>
+            <tr>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="pool_div" class="full" style="display: none;">
+        <H2>Pool 
+          <span style="float: right;">
+            <input id="pool_edit" style="font-size: 18px;max-width: 60px;margin-right: 20px;" class="small_input" type="button" onclick="editPool()" value="Edit"></input>
+          </span>
+        </H2>
+        <table id="pool">
+          <thead id="pool_thead">
+            <tr>
+            </tr>
+          </thead>
+          <tbody id="pool_tbody">
+          </tbody>
+        </table>
+      </div>
+
+      <div id="api_div" style="display: none;">
+        <H2>API Functions</H2>
+
+        <div id="apiUI"></div>
+      </div>
+
+      <div id="edit_pool_div" style="display: none;">
+        <h2>Pool <span id="pool_id"></span></h2>
+        <div class="form_div">
+            <div class="my_row">
+              <div class="my_column" style="padding-right: 20px;">
+                <label for="country">Image</label>
+                <select id="imageId"></select>
+
+                <label for="desiredReplicas">Desired Replicas</label>
+                <input type="text" id="desiredReplicas" name="desiredReplicas">
+
+                <label for="rebootIntervalMinutes">Reboot Interval Minutes</label>
+                <input type="text" id="rebootIntervalMinutes" name="rebootIntervalMinutes">
+
+                <label for="startupScript">Startup Script</label>
+                <textarea id="startupScript" name="startupScript"></textarea>
+
+                <label for="rollingUpdateMaxUnavailablePercentage">Rolling Update Max Unavailable Percentage</label>
+                <input type="text" id="rollingUpdateMaxUnavailablePercentage" name="rollingUpdateMaxUnavailablePercentage">
+              </div>
+
+              <div class="my_column">
+                <label for="country">Machine Type</label>
+                <select id="machineTypeId"></select>
+
+                <label for="useLocalCacheDisk">useLocalCacheDisk</label>
+                <input type="text" id="useLocalCacheDisk" name="useLocalCacheDisk">
+
+                <label for="metalEnabled">metalEnabled</label>
+                <input type="text" id="metalEnabled" name="metalEnabled">
+
+
+                <label for="warmupScript">Warmup Script</label>
+                <textarea id="warmupScript" name="warmupScript"></textarea>
+              </div>
+            </div>
+
+            <input id="pool_save" type="submit" value="Submit">
+        </div>
+      </div>
+    </div>
+  </div>
+    
+    <script src="./tree/tree.js"></script>
+    <script src="./api/swagger.js"></script>
+    <script src="./api/demo.js"></script>
+    <script src="./api/api.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

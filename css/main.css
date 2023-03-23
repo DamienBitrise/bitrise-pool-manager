@@ -1,0 +1,242 @@
+body {
+    background-color: #292c33;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+}
+
+h1, h2 {
+    margin-top: 0;
+    padding-left: 20px;
+    padding-bottom: 10px;
+    background-color: #16171b;
+    margin-bottom: 0px;
+}
+
+h1 {
+    background-color: #292c33;
+    color: #fff;
+    padding: 4px;
+    height: 60px;
+    margin-bottom: 0px;
+    font-family: Helvetica, sans-serif;
+}
+
+.header{
+    height: 30px;
+    margin-left: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#swaggerSchema, #apiUI {
+    background-color: #333;
+    border: none;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    padding: 10px;
+    width: 100%;
+}
+
+#swaggerSchema {
+    height: 200px;
+}
+
+button {
+    background-color: #007acc;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    padding: 10px;
+}
+
+button:hover {
+    background-color: #0067a3;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type="text"], select {
+    background-color: #444;
+    border: none;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    padding: 0px;
+    width: 100px;
+}
+
+input[type="text"]::placeholder, select::placeholder {
+    color: #aaa;
+}
+
+input[type="submit"] {
+    background-color: #007acc;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    padding: 10px;
+}
+
+input[type="submit"]:hover {
+    background-color: #0067a3;
+}
+
+textarea {
+    background-color: #444;
+    border: none;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    padding: 10px;
+    resize: none;
+    width: 400px;
+}
+
+code {
+    background-color: #555;
+    color: #fff;
+    font-family: Consolas, monospace;
+    font-size: 12px;
+    padding: 2px;
+}
+
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    border: 1px solid #fff;
+    box-sizing: border-box;
+}
+
+th, td {
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {background-color: #525252;}
+
+.container{
+    display: block;
+    width: 100%;
+    height:auto;
+    overflow: hidden;
+}
+
+.inline{
+    float: left;
+    width: 50%;
+}
+.full{
+    display: block;
+    width: 100%;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* Create two equal columns that floats next to each other */
+.my_column {
+    float: left;
+    padding: 0px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100%;
+}
+
+.my_row {
+    height: calc(100% - 110px);
+    overflow: none;
+}
+/* Clear floats after the columns */
+.my_row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.left_col{
+    width: 400px;
+    background-color: #16171b;
+    border: 1px solid #ddd;
+}
+
+.right_col{
+    width: calc(100% - 400px);
+    background-color:#2a2c33;
+    border: 1px solid #ddd;
+}
+
+.large_input {
+    width: 750px !important;
+    margin-bottom: 0px;
+}
+
+.small_input {
+    width: 150px !important;
+    margin-bottom: 0px;
+}
+
+td.last {
+    width: 1px;
+    white-space: nowrap;
+}
+
+td{
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+tbody tr td:first-child{
+    width: 1em;
+    min-width: 1em;
+    max-width: 1em;
+    column-width: 1em;
+    word-break: break-all;
+    text-overflow: ellipsis;
+    max-width: 100px;
+}
+
+table{
+    font-size: 18px;
+    table-layout: auto;
+}
+
+thead th {
+    text-transform: none;
+    text-overflow: ellipsis;
+    max-width: 100px;
+}
+
+tr:hover {
+    background-color: #485789;
+}
+
+.form_div{
+    padding: 20px;
+}
+
+textarea:hover{
+    background-color: #000;
+}
+textarea:focus{
+    background-color: #000;
+}
+
+[type=text]:hover{
+    background-color: #000;
+}
+[type=text]:focus{
+    background-color: #000;
+}
