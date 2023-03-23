@@ -5,6 +5,7 @@ let pools = null;
 let images = null;
 let machine_types = null;
 let machines = null;
+let is_edit_pool = false;
 
 const STAGES = {
     STAGE_TYPE_WARMUP: 'STAGE_TYPE_WARMUP',
@@ -40,6 +41,39 @@ function hideAll(){
     document.getElementById('api_div').style.display = 'none';
 }
 
+function newPool(){
+    is_edit_pool = false;
+    hideAll();
+
+    document.getElementById('pool_save').onclick = async function() { 
+        await savePool(); 
+        await loadPools();
+        showPools();
+    };
+
+    document.getElementById('desiredReplicas').value = 1;
+    document.getElementById('rollingUpdateMaxUnavailablePercentage').value = 50;
+    document.getElementById('rebootIntervalMinutes').value = 60;
+    document.getElementById('warmupScript').value = '';
+    document.getElementById('startupScript').value = '';
+    document.getElementById('useLocalCacheDisk').value = 'false';
+    document.getElementById('metalEnabled').value = 'true';
+
+    let html = '';
+    images.images.forEach((image)=>{
+        html += '<option value="'+image.id+'" '+(pool["imageId"] == image.stack ? 'selected' : '')+'>'+image.stack+'</option>';
+    })
+    document.getElementById('imageId').innerHTML = html;
+
+    html = '';
+    machine_types.machineTypes.forEach((machine_type)=>{
+        html += '<option value="'+machine_type.id+'" '+(pool["machineTypeId"] == machine_type.name ? 'selected' : '')+'>'+machine_type.name+'</option>';
+    })
+    document.getElementById('machineTypeId').innerHTML = html;
+
+    document.getElementById('edit_pool_div').style.display = '';
+}
+
 function showImages(){
     hideAll();
     document.getElementById('images_div').style.display = '';
@@ -61,10 +95,15 @@ function showPools(){
 }
 
 function editPool(id){
+    is_edit_pool = true;
     hideAll();
     document.getElementById('pool_id').innerHTML = id;
-    document.getElementById('pool_save').onclick = function() { savePool(id); };
-    let pool = pools.find((pool)=>pool.id==id);
+    document.getElementById('pool_save').onclick = async function() { 
+        await savePool(id); 
+        await loadPools();
+        showPools();
+    };
+    let pool = pools.pools.find((pool)=>pool.id==id);
     document.getElementById('desiredReplicas').value = pool["desiredReplicas"];
     document.getElementById('rollingUpdateMaxUnavailablePercentage').value = pool["rollingUpdateMaxUnavailablePercentage"];
     document.getElementById('rebootIntervalMinutes').value = pool["rebootIntervalMinutes"];
@@ -74,13 +113,13 @@ function editPool(id){
     document.getElementById('metalEnabled').value = pool["metalEnabled"];
 
     let html = '';
-    images.forEach((image)=>{
+    images.images.forEach((image)=>{
         html += '<option value="'+image.id+'" '+(pool["imageId"] == image.stack ? 'selected' : '')+'>'+image.stack+'</option>';
     })
     document.getElementById('imageId').innerHTML = html;
 
     html = '';
-    machine_types.forEach((machine_type)=>{
+    machine_types.machineTypes.forEach((machine_type)=>{
         html += '<option value="'+machine_type.id+'" '+(pool["machineTypeId"] == machine_type.name ? 'selected' : '')+'>'+machine_type.name+'</option>';
     })
     document.getElementById('machineTypeId').innerHTML = html;
@@ -91,9 +130,15 @@ function editPool(id){
 function showPool(id){
     hideAll();
     document.getElementById('pool_edit').onclick = function() { editPool(id); };
-    document.getElementById('pool_save').onclick = function() { savePool(id); };
-    let pool = pools.find((pool)=>pool.id==id);
-    document.getElementById('pool_name').innerHTML = '(' + pool.imageId + ' - ' + pool.machineTypeId + ')';
+    document.getElementById('pool_save').onclick = async function() { 
+        await savePool(id); 
+        await loadPools();
+        showPools();
+    };
+    let pool = pools.pools.find((pool)=>pool.id==id);
+    let image = images.images.find((image)=>image.id==pool.imageId)
+    let machineType = machine_types.machineTypes.find((machine_type)=>machine_type.id==pool.machineTypeId)
+    document.getElementById('pool_name').innerHTML = '(' + image.stack + ' - ' + machineType.name + ')';
     document.getElementById('pool_thead').innerHTML = '<tr></tr>';
     document.getElementById('pool_tbody').innerHTML = '';
     buildTable('pool', pool.machines);
@@ -107,7 +152,7 @@ function showAPI(){
     document.getElementById('api_div').style.display = '';
 }
 
-function savePool(id){
+async function savePool(id){
     let desiredReplicas = document.getElementById('desiredReplicas').value;
     let rollingUpdateMaxUnavailablePercentage = document.getElementById('rollingUpdateMaxUnavailablePercentage').value;
     let rebootIntervalMinutes = document.getElementById('rebootIntervalMinutes').value;
@@ -116,52 +161,54 @@ function savePool(id){
     let useLocalCacheDisk = document.getElementById('useLocalCacheDisk').value;
     let metalEnabled = document.getElementById('metalEnabled').value;
 
-    let pool_patched = patchPool(pools.find((pool)=>pool.id == id).id, {
-        "desiredReplicas": desiredReplicas,
-        "rollingUpdateMaxUnavailablePercentage": rollingUpdateMaxUnavailablePercentage,
-        "parallelReplicasUpdatePercentage": rebootIntervalMinutes,
-        "rebootIntervalMinutes": 0,
-        "warmupScript": warmupScript
-            .replace(/\\n/g, "\\n")
-            .replace(/\\'/g, "\\'")
-            .replace(/\\"/g, '\\"')
-            .replace(/\\&/g, "\\&")
-            .replace(/\\r/g, "\\r")
-            .replace(/\\t/g, "\\t")
-            .replace(/\\b/g, "\\b")
-            .replace(/\\f/g, "\\f"),
-        "startupScript": startupScript
-            .replace(/\\n/g, "\\n")
-            .replace(/\\'/g, "\\'")
-            .replace(/\\"/g, '\\"')
-            .replace(/\\&/g, "\\&")
-            .replace(/\\r/g, "\\r")
-            .replace(/\\t/g, "\\t")
-            .replace(/\\b/g, "\\b")
-            .replace(/\\f/g, "\\f"),
-        "imageId": "osx-xcode-14.0.x",
-        "machineTypeId": "g2-m1-max.5core",
-        "useLocalCacheDisk": useLocalCacheDisk == 'true' ? true : false,
-        "metalEnabled": metalEnabled == 'true' ? true : false
-    });
+    let imageId = document.getElementById('imageId').value;
+    let machineTypeId = document.getElementById('machineTypeId').value;
+
+    if(is_edit_pool){
+        let pool_patched = await patchPool(pools.find((pool)=>pool.id == id).id, {
+            "desiredReplicas": desiredReplicas,
+            "rollingUpdateMaxUnavailablePercentage": rollingUpdateMaxUnavailablePercentage,
+            "parallelReplicasUpdatePercentage": rebootIntervalMinutes,
+            "rebootIntervalMinutes": 0,
+            "warmupScript": btoa(warmupScript),
+            "startupScript": btoa(startupScript),
+            "imageId": imageId,
+            "machineTypeId": machineTypeId,
+            "useLocalCacheDisk": useLocalCacheDisk == 'true' ? true : false,
+            "metalEnabled": metalEnabled == 'true' ? true : false
+        });
+    } else {
+        let pool_created = await createPool({
+            "desiredReplicas": desiredReplicas,
+            "rollingUpdateMaxUnavailablePercentage": rollingUpdateMaxUnavailablePercentage,
+            "parallelReplicasUpdatePercentage": rebootIntervalMinutes,
+            "rebootIntervalMinutes": 0,
+            "warmupScript": btoa(warmupScript),
+            "startupScript": btoa(startupScript),
+            "imageId": imageId,
+            "machineTypeId": machineTypeId,
+            "useLocalCacheDisk": useLocalCacheDisk == 'true' ? true : false,
+            "metalEnabled": metalEnabled == 'true' ? true : false
+        });
+    }
 }
-function loadData(){
-    images = loadImages();
-    machine_types = loadMachineTypes();
-    machines = loadMachines();
+async function loadData(){
+    images = await loadImages();
+    machine_types = await loadMachineTypes();
+    machines = await loadMachines();
     
     // let logs = loadLogs(machines);
 
     // let pool_created = createPool();
 
-    pools = loadPools();
+    pools = await loadPools();
 
     
     buildTree({
-        images,
-        machine_types,
-        machines,
-        pools
+        images: images.images,
+        machine_types: machine_types.machineTypes,
+        machines: machines.machines,
+        pools: pools.pools
     })
 
     // if(pools.length > 0){
@@ -185,6 +232,7 @@ function buildTable(tableElm, array, edit){
     // Get the table element and tbody
     var table = document.getElementById(tableElm);
     var tbody = table.getElementsByTagName('tbody')[0];
+    tbody.innerHTML = '';
 
     // Loop through the array of JSON objects and create table rows and headers
     for (var i = 0; i < array.length; i++) {
@@ -228,7 +276,7 @@ function buildTable(tableElm, array, edit){
 
       if(edit){
         var cell = document.createElement('td');
-        cell.innerHTML = '<input class="small_input" type="button" onclick="editPool('+element.id+')" value="Edit"></input>';
+        cell.innerHTML = '<input class="small_input" type="button" onclick="editPool(\''+element.id+'\')" value="Edit"></input>';
         row.appendChild(cell);
       }
 

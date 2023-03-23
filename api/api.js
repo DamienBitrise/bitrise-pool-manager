@@ -1,3 +1,4 @@
+let USE_DEMO_DATA = false;
 
 async function get(path){
     const url = new URL(BASE_URL + path);
@@ -37,7 +38,7 @@ async function del(path){
     }
 }
 
-async function post(path){
+async function post(path, pool){
     const url = new URL(BASE_URL + path);
 
     try {
@@ -47,18 +48,7 @@ async function post(path){
                 'accept': 'application/json',
                 'Authorization': api_key,
             },
-            body: JSON.stringify({
-                "desiredReplicas": 1,
-                "rollingUpdateMaxUnavailablePercentage": 0,
-                "parallelReplicasUpdatePercentage": 1,
-                "rebootIntervalMinutes": 0,
-                "warmupScript": "echo \"Hello World! warmupScript\"",
-                "startupScript": "echo \"Hello World! startupScript\"",
-                "imageId": "osx-xcode-14.0.x",
-                "machineTypeId": "g2-m1-max.5core",
-                "useLocalCacheDisk": true,
-                "metalEnabled": true
-            })
+            body: JSON.stringify(pool)
         };
         const response = await fetch(url, params);
         const data = await response.json();
@@ -90,64 +80,72 @@ async function patch(path, poll){
     }
 }
 
-function loadImages(){
+async function loadImages(){
     // Images
     let images_path = `/platform/organization/${orgSlug}/images`;
-    let images = get(images_path);
+    let images = await get(images_path);
     console.log('GET Images: ', images);
-    images = demo_images;
-    buildTable('images', images);
+    if(USE_DEMO_DATA){
+        images = demo_images;
+    }
+    buildTable('images', images.images);
     return images;
 }
 
-function loadMachineTypes(){
+async function loadMachineTypes(){
     // Machine Types
     let machine_types_path = `/platform/organization/${orgSlug}/machine_types`;
-    let machine_types = get(machine_types_path);
+    let machine_types = await get(machine_types_path);
     console.log('GET machine_types: ', machine_types);
-    machine_types = demo_machine_types;
-    buildTable('machine_types', machine_types);
+    if(USE_DEMO_DATA){
+        machine_types = demo_machine_types;
+    }
+    buildTable('machine_types', machine_types.machineTypes);
     return machine_types;
 }
 
-function loadMachines(){
+async function loadMachines(){
     // Machines
     let machines_path = `/platform/organization/${orgSlug}/machines`;
-    let machines = get(machines_path);
+    let machines = await get(machines_path);
     console.log('GET Machines: ', machines);
-    machines = demo_machines;
-    buildTable('machines', machines);
+    if(USE_DEMO_DATA){
+        machines = demo_machines;
+    }
+    buildTable('machines', machines.machines);
     return machines;
 }
 
-function loadLogs(machines){
+async function loadLogs(machines){
     if(machines.length > 0){
         // Logs
         let log_path = `/platform/organization/${orgSlug}/machines/${machines[0].id}/${STAGES.STAGE_TYPE_MAIN}/${TYPES.LOG_TYPE_STDOUT}`;
-        let logs = get(log_path);
+        let logs = await get(log_path);
         console.log('GET Logs: ', logs);
     }
 }
 
-function createPool(){
+async function createPool(pool){
     // Pools POST
     let pools_path = `/platform/organization/${orgSlug}/pools`;
-    let pool_created = post(pools_path);
+    let pool_created = await post(pools_path, pool);
     console.log('POST Pool: ', pool_created);
     return pool_created;
 }
 
-function loadPools(){
+async function loadPools(){
     // Pools GET
     let pools_path = `/platform/organization/${orgSlug}/pools`;
-    let pools = get(pools_path);
+    let pools = await get(pools_path);
     console.log('GET Pools: ', pools);
-    pools = demo_pools;
-    buildTable('pools', pools, true);
+    if(USE_DEMO_DATA){
+        pools = demo_pools;
+    }
+    buildTable('pools', pools.pools, true);
     return pools;
 }
 
-function patchPool(poolId, poll){
+async function patchPool(poolId, poll){
     // Pools PATCH
     let pools_edit_path = `/platform/organization/${orgSlug}/pools/${poolId}`;
     let pool_patched = patch(pools_edit_path, poll);
@@ -155,10 +153,10 @@ function patchPool(poolId, poll){
     return pool_patched;
 }
 
-function deletePool(poolId){
+async function deletePool(poolId){
     // Pools DELETE
     let pools_edit_path = `/platform/organization/${orgSlug}/pools/${poolId}`;
-    let pool_deleted = del(pools_edit_path);
+    let pool_deleted = await del(pools_edit_path);
     console.log('DELETE Pools: ', pool_deleted);
     return pool_deleted;
 }
@@ -301,3 +299,23 @@ function generateUI() {
         }
     }
 }
+
+let pollingInterval = 1000;
+async function pollAPI(){
+    console.log('Polling for updates');
+    let color = document.getElementById("polling").style.color;
+    if(color == 'rgb(128, 204, 128)'){
+        document.getElementById("polling").style.color = 'rgb(0, 128, 0)';
+    } else {
+        document.getElementById("polling").style.color = 'rgb(128, 204, 128)';
+    }
+    await loadPools();
+}
+
+function runAgain(){
+    setTimeout(async ()=>{
+        await pollAPI();
+        runAgain()
+    }, pollingInterval)
+}
+runAgain();

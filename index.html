@@ -6,10 +6,11 @@
     <link rel="stylesheet" href="./css/main.css">
   </head>
   <body>
-    <h1>Pool Manager</h1>
+    <h1>Pool Manager <span id="polling" style="float: right; zoom: 3;color: rgb(128, 204, 128);">&#183;</span></h1>
     <div class="header">
       Org Slug: <input id="org_slug" class="small_input" type="text" value="">
       API Key: <input id="api_key" class="large_input" type="text" value="">
+      <input id="new_pool" class="small_input" type="button" onclick="newPool()" value="New Pool" style="float: right;margin-right: 20px;">
       <input id="org_slug" class="small_input" type="button" onclick="showAPI()" value="API" style="float: right;margin-right: 20px;">
     </div>
     <div class="my_row">
@@ -100,16 +101,16 @@
                 <select id="imageId"></select>
 
                 <label for="desiredReplicas">Desired Replicas</label>
-                <input type="text" id="desiredReplicas" name="desiredReplicas">
+                <input type="number" id="desiredReplicas" name="desiredReplicas">
 
                 <label for="rebootIntervalMinutes">Reboot Interval Minutes</label>
-                <input type="text" id="rebootIntervalMinutes" name="rebootIntervalMinutes">
+                <input type="number" id="rebootIntervalMinutes" name="rebootIntervalMinutes">
 
                 <label for="startupScript">Startup Script</label>
                 <textarea id="startupScript" name="startupScript"></textarea>
 
                 <label for="rollingUpdateMaxUnavailablePercentage">Rolling Update Max Unavailable Percentage</label>
-                <input type="text" id="rollingUpdateMaxUnavailablePercentage" name="rollingUpdateMaxUnavailablePercentage">
+                <input type="number" id="rollingUpdateMaxUnavailablePercentage" name="rollingUpdateMaxUnavailablePercentage">
               </div>
 
               <div class="my_column">
@@ -117,10 +118,16 @@
                 <select id="machineTypeId"></select>
 
                 <label for="useLocalCacheDisk">useLocalCacheDisk</label>
-                <input type="text" id="useLocalCacheDisk" name="useLocalCacheDisk">
+                <select id="useLocalCacheDisk">
+                  <option value="true">True</option>
+                  <option value="false" selected>False</option>
+                </select>
 
                 <label for="metalEnabled">metalEnabled</label>
-                <input type="text" id="metalEnabled" name="metalEnabled">
+                <select id="metalEnabled">
+                  <option value="true" selected>True</option>
+                  <option value="false">False</option>
+                </select>
 
 
                 <label for="warmupScript">Warmup Script</label>
@@ -131,6 +138,7 @@
             <input id="pool_save" type="submit" value="Submit">
         </div>
       </div>
+
     </div>
   </div>
     
