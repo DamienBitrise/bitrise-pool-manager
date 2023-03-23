@@ -243,6 +243,10 @@ function generateUI() {
         const submitButton = document.createElement("input");
         submitButton.type = "submit";
         submitButton.value = "Submit";
+
+        const br = document.createElement("br");
+        form.appendChild(br);
+
         form.appendChild(submitButton);
 
         // Add the form to the UI element
