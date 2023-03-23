@@ -93,6 +93,7 @@ function showPool(id){
     document.getElementById('pool_edit').onclick = function() { editPool(id); };
     document.getElementById('pool_save').onclick = function() { savePool(id); };
     let pool = pools.find((pool)=>pool.id==id);
+    document.getElementById('pool_name').innerHTML = '(' + pool.imageId + ' - ' + pool.machineTypeId + ')';
     document.getElementById('pool_thead').innerHTML = '<tr></tr>';
     document.getElementById('pool_tbody').innerHTML = '';
     buildTable('pool', pool.machines);
@@ -189,6 +190,10 @@ function buildTable(tableElm, array, edit){
     for (var i = 0; i < array.length; i++) {
       var element = array[i];
       var row = document.createElement('tr');
+      if(edit){
+        row.onclick = ()=>{showPool(element.id)}
+        row.classList.add('clickable');
+      }
 
       // Loop through the properties of the JSON object and create table cells
       for (var prop in element) {

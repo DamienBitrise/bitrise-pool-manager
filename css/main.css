@@ -198,6 +198,10 @@ td{
     overflow: hidden;
 }
 
+.clickable{
+    cursor: pointer;
+}
+
 tbody tr td:first-child{
     width: 1em;
     min-width: 1em;
