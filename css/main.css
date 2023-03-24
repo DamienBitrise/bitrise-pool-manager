@@ -204,13 +204,13 @@ td{
 }
 
 tbody tr td:first-child{
-    width: 1em;
+    /* width: 1em;
     min-width: 1em;
     max-width: 1em;
-    column-width: 1em;
+    column-width: 1em; */
     word-break: break-all;
     text-overflow: ellipsis;
-    max-width: 100px;
+    /* max-width: 100px; */
 }
 
 table{
@@ -285,4 +285,8 @@ textarea:focus-visible{
     margin: 10px;
     font-size: 12px;
     padding: 10px;
+}
+
+h3{
+    margin-left: 10px;
 }

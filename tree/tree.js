@@ -26,10 +26,11 @@ function toggleElement(element, show) {
   }
 
 
-  function buildNode(name, id, parent, children, attribute, attribute2, action){
+  function buildNode(name, id, parent, children, attribute, attribute2, action, action2){
     let childHTML = '';
     children.forEach((child)=>{
-        childHTML += '<li class="p-list-tree__item" role="treeitem">' + child[attribute] + (attribute2 ? ' - ' + child[attribute2] : '') +'</li>';
+        let actionCmd = name == 'Virtual Machines' ? action2 + '(\'' + child.id + '\')' : '';
+        childHTML += '<li class="p-list-tree__item '+(name == 'Virtual Machines' ? 'clickable' : '')+'" role="treeitem" onclick="'+actionCmd+'">' + child[attribute] + (attribute2 ? ' - ' + child[attribute2] : '') +'</li>';
     })
     let html = `
     <li class="p-list-tree__item p-list-tree__item--group" role="treeitem">

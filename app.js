@@ -21,7 +21,7 @@ function buildTree(data){
     let root = document.getElementById('tree_root');
     buildNode('Images', 1, root, data.images, 'stack', '', 'showImages');
     buildNode('Machine Types', 2, root, data.machine_types, 'name', '', 'showMachines');
-    buildNode('Virtual Machines', 3, root, data.machines, 'id', 'createdAt', 'showVirtualMachines');
+    buildNode('Virtual Machines', 3, root, data.machines, 'id', 'createdAt', 'showVirtualMachines', 'showMachine');
     buildNestedNode('Pools', 4, root, data.pools, 'id', 'machineTypeId', 'showPools');
 
     // Set up all list trees on the page.
@@ -144,7 +144,7 @@ async function showPool(id){
     document.getElementById('pool_tbody').innerHTML = '';
     buildTable('pool', pool.machines);
 
-    await loadLogs();
+    // await loadLogs();
 
 
     document.getElementById('pool_div').style.display = '';
@@ -259,6 +259,13 @@ function buildTable(tableElm, array, type){
     tbody.innerHTML = '';
     table.getElementsByTagName('tr')[0].innerHTML = '';
 
+    if(array.length == 0){
+        var row = document.createElement('tr');
+        var cell = document.createElement('td');
+        cell.innerHTML = 'No Data';
+        row.appendChild(cell);
+        tbody.appendChild(row);
+    }
     // Loop through the array of JSON objects and create table rows and headers
     for (var i = 0; i < array.length; i++) {
       var element = array[i];
@@ -278,7 +285,10 @@ function buildTable(tableElm, array, type){
         || prop == 'rebootIntervalMinutes'
         || prop == 'metalEnabled'
         || prop == 'isDeleted'
-        || prop == 'useLocalCacheDisk'){
+        || prop == 'useLocalCacheDisk' 
+        || prop == 'poolId'
+        || prop == 'remoteAccess'
+        || prop == 'id'){
             continue;
         }
         if (i === 0) {
