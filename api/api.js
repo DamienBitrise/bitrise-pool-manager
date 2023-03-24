@@ -300,7 +300,7 @@ function generateUI() {
     }
 }
 
-let pollingInterval = 10000;
+let pollingInterval = 1000;
 async function pollAPI(){
     console.log('Polling for updates');
     let color = document.getElementById("polling").style.color;
