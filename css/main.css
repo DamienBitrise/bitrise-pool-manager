@@ -125,7 +125,7 @@ th, td {
     padding: 8px;
 }
 
-tr:nth-child(even) {background-color: #525252;}
+tbody tr:nth-child(even) {background-color: #525252;}
 
 .container{
     display: block;
@@ -224,7 +224,7 @@ thead th {
     max-width: 100px;
 }
 
-tr:hover {
+tbody tr:hover {
     background-color: #485789;
 }
 

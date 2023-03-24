@@ -1,5 +1,5 @@
-const api_key = document.getElementById("api_key").value;
-const orgSlug = document.getElementById("org_slug").value;
+let api_key = document.getElementById("api_key").value;
+let orgSlug = document.getElementById("org_slug").value;
 const BASE_URL = 'https://api.bitrise.io/v0.1';
 let pools = null;
 let images = null;
@@ -165,11 +165,12 @@ async function savePool(id){
     let machineTypeId = document.getElementById('machineTypeId').value;
 
     if(is_edit_pool){
-        let pool_patched = await patchPool(pools.find((pool)=>pool.id == id).id, {
-            "desiredReplicas": desiredReplicas,
-            "rollingUpdateMaxUnavailablePercentage": rollingUpdateMaxUnavailablePercentage,
-            "parallelReplicasUpdatePercentage": rebootIntervalMinutes,
-            "rebootIntervalMinutes": 0,
+        let pool = pools.pools.find((pool)=>pool.id == id);
+        let pool_patched = await patchPool(pool.id, {
+            "desiredReplicas": parseInt(desiredReplicas),
+            "rollingUpdateMaxUnavailablePercentage": parseInt(rollingUpdateMaxUnavailablePercentage),
+            // "parallelReplicasUpdatePercentage": rebootIntervalMinutes,
+            "rebootIntervalMinutes": parseInt(rebootIntervalMinutes),
             "warmupScript": btoa(warmupScript),
             "startupScript": btoa(startupScript),
             "imageId": imageId,
@@ -177,12 +178,13 @@ async function savePool(id){
             "useLocalCacheDisk": useLocalCacheDisk == 'true' ? true : false,
             "metalEnabled": metalEnabled == 'true' ? true : false
         });
+        pools = await loadPools();
     } else {
         let pool_created = await createPool({
-            "desiredReplicas": desiredReplicas,
-            "rollingUpdateMaxUnavailablePercentage": rollingUpdateMaxUnavailablePercentage,
-            "parallelReplicasUpdatePercentage": rebootIntervalMinutes,
-            "rebootIntervalMinutes": 0,
+            "desiredReplicas": parseInt(desiredReplicas),
+            "rollingUpdateMaxUnavailablePercentage": parseInt(rollingUpdateMaxUnavailablePercentage),
+            // "parallelReplicasUpdatePercentage": rebootIntervalMinutes,
+            "rebootIntervalMinutes": parseInt(rebootIntervalMinutes),
             "warmupScript": btoa(warmupScript),
             "startupScript": btoa(startupScript),
             "imageId": imageId,
@@ -190,6 +192,7 @@ async function savePool(id){
             "useLocalCacheDisk": useLocalCacheDisk == 'true' ? true : false,
             "metalEnabled": metalEnabled == 'true' ? true : false
         });
+        pools = await loadPools();
     }
 }
 async function loadData(){
@@ -233,6 +236,7 @@ function buildTable(tableElm, array, edit){
     var table = document.getElementById(tableElm);
     var tbody = table.getElementsByTagName('tbody')[0];
     tbody.innerHTML = '';
+    table.getElementsByTagName('tr')[0].innerHTML = '';
 
     // Loop through the array of JSON objects and create table rows and headers
     for (var i = 0; i < array.length; i++) {
@@ -260,6 +264,7 @@ function buildTable(tableElm, array, edit){
           header.innerText = prop;
           table.getElementsByTagName('tr')[0].appendChild(header);
         }
+        
         var cell = document.createElement('td');
         if(prop == "mainStage" || prop == "warmupStage"){
             cell.innerText = element[prop].status.replace('MACHINE_STATUS_', '').replace('STAGE_STATUS_', '').replace('POOL_STATUS_', '');
@@ -268,6 +273,12 @@ function buildTable(tableElm, array, edit){
         } else if(prop == "createdAt" || prop == "updatedAt"){
             let date = element[prop].substring(0,10) + ' ' + element[prop].substring(11,19);
             cell.innerText = date;
+        } else if(prop == "imageId"){
+            let image = images.images.find((image)=>image.id==element[prop]);
+            cell.innerText = image.stack;
+        } else if(prop == "machineTypeId"){
+            let machineType = machine_types.machineTypes.find((machine_type)=>machine_type.id==element[prop]);
+            cell.innerText = machineType.name;
         } else {
             cell.innerText = element[prop];
         }
@@ -275,8 +286,22 @@ function buildTable(tableElm, array, edit){
       }
 
       if(edit){
+        var header = document.createElement('th');
+        header.title= 'Edit';
+        header.innerText = 'Edit';
+        table.getElementsByTagName('tr')[0].appendChild(header);
+
+        var header2 = document.createElement('th');
+        header2.title= 'Delete';
+        header2.innerText = 'Delete';
+        table.getElementsByTagName('tr')[0].appendChild(header2);
+
         var cell = document.createElement('td');
-        cell.innerHTML = '<input class="small_input" type="button" onclick="editPool(\''+element.id+'\')" value="Edit"></input>';
+        cell.innerHTML = '<input style="cursor: pointer;" class="small_input" type="button" onclick="editPool(\''+element.id+'\')" value="Edit"></input>';
+        row.appendChild(cell);
+
+        var cell = document.createElement('td');
+        cell.innerHTML = '<input style="cursor: pointer;background-color: #e12e2e; color: #fff;" class="small_input" type="button" onclick="deletePool(\''+element.id+'\')" value="Delete"></input>';
         row.appendChild(cell);
       }
 
@@ -285,5 +310,16 @@ function buildTable(tableElm, array, edit){
     }
 }
 
+
+function connect(hideError){
+    api_key = document.getElementById("api_key").value;
+    orgSlug = document.getElementById("org_slug").value;
+    if(api_key && orgSlug){
+        loadData();
+    } else if(!hideError) {
+        alert('Cannot connect without an Org Slug and Bitrise API Key!');
+    }
+}
+
 generateUI();
-loadData();
+connect(true);

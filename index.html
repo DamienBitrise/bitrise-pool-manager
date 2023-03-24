@@ -6,12 +6,13 @@
     <link rel="stylesheet" href="./css/main.css">
   </head>
   <body>
-    <h1>Pool Manager <span id="polling" style="float: right; zoom: 3;color: rgb(128, 204, 128);">&#183;</span></h1>
+    <h1>Pool Manager  <span id="polling" style="float: right; zoom: 2;color: rgb(128, 204, 128);">&#183;</span> <span id="polling" style="float: right;color: rgb(128, 204, 128);font-size: 12px;">Connected </span></h1>
     <div class="header">
       Org Slug: <input id="org_slug" class="small_input" type="text" value="">
       API Key: <input id="api_key" class="large_input" type="text" value="">
-      <input id="new_pool" class="small_input" type="button" onclick="newPool()" value="New Pool" style="float: right;margin-right: 20px;">
-      <input id="org_slug" class="small_input" type="button" onclick="showAPI()" value="API" style="float: right;margin-right: 20px;">
+      <input id="new_pool" class="small_input" type="button" onclick="connect()" value="Connect" style="cursor: pointer;margin-left: 20px;">
+      <input id="new_pool" class="small_input" type="button" onclick="newPool()" value="New Pool" style="cursor: pointer;float: right;margin-right: 20px;">
+      <input id="org_slug" class="small_input" type="button" onclick="showAPI()" value="API" style="cursor: pointer;float: right;margin-right: 20px;">
     </div>
     <div class="my_row">
       <div class="my_column left_col">

@@ -158,6 +158,7 @@ async function deletePool(poolId){
     let pools_edit_path = `/platform/organization/${orgSlug}/pools/${poolId}`;
     let pool_deleted = await del(pools_edit_path);
     console.log('DELETE Pools: ', pool_deleted);
+    pools = await loadPools();
     return pool_deleted;
 }
 
@@ -300,7 +301,7 @@ function generateUI() {
     }
 }
 
-let pollingInterval = 1000;
+let pollingInterval = 10000;
 async function pollAPI(){
     console.log('Polling for updates');
     let color = document.getElementById("polling").style.color;
