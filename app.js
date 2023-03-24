@@ -39,6 +39,7 @@ function hideAll(){
     document.getElementById('pool_div').style.display = 'none';
     document.getElementById('edit_pool_div').style.display = 'none';
     document.getElementById('api_div').style.display = 'none';
+    document.getElementById('machine_div').style.display = 'none';
 }
 
 function newPool(){
@@ -127,7 +128,7 @@ function editPool(id){
     document.getElementById('edit_pool_div').style.display = '';
 }
 
-function showPool(id){
+async function showPool(id){
     hideAll();
     document.getElementById('pool_edit').onclick = function() { editPool(id); };
     document.getElementById('pool_save').onclick = async function() { 
@@ -143,8 +144,28 @@ function showPool(id){
     document.getElementById('pool_tbody').innerHTML = '';
     buildTable('pool', pool.machines);
 
+    await loadLogs();
+
 
     document.getElementById('pool_div').style.display = '';
+}
+
+async function showMachine(id){
+    hideAll();
+    let machine = machines.machines.find((machine_type)=>machine_type.id==id)
+    document.getElementById('machine_name').innerHTML = '(' + machine.id + ')';
+
+    let machine_logs_main_stdout = await loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDOUT);
+    let machine_logs_main_stderr = await loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDERR);
+    let machine_logs_warmup_stdout = await loadLogs(machine.id, STAGES.STAGE_TYPE_WARMUP, TYPES.LOG_TYPE_STDOUT);
+    let machine_logs_warmup_stderr = await loadLogs(machine.id, STAGES.STAGE_TYPE_WARMUP, TYPES.LOG_TYPE_STDERR);
+
+    document.getElementById('machine_logs_main_stdout').innerHTML = machine_logs_main_stdout.message;
+    document.getElementById('machine_logs_main_stderr').innerHTML = machine_logs_main_stderr.message;
+    document.getElementById('machine_logs_warmup_stdout').innerHTML = machine_logs_warmup_stdout.message;
+    document.getElementById('machine_logs_warmup_stderr').innerHTML = machine_logs_warmup_stderr.message;
+
+    document.getElementById('machine_div').style.display = '';
 }
 
 function showAPI(){
@@ -231,7 +252,7 @@ async function loadData(){
     // }
 }
 
-function buildTable(tableElm, array, edit){
+function buildTable(tableElm, array, type){
     // Get the table element and tbody
     var table = document.getElementById(tableElm);
     var tbody = table.getElementsByTagName('tbody')[0];
@@ -242,8 +263,11 @@ function buildTable(tableElm, array, edit){
     for (var i = 0; i < array.length; i++) {
       var element = array[i];
       var row = document.createElement('tr');
-      if(edit){
+      if(type == 'pool'){
         row.onclick = ()=>{showPool(element.id)}
+        row.classList.add('clickable');
+      } else if (type == 'machine') {
+        row.onclick = ()=>{showMachine(element.id)}
         row.classList.add('clickable');
       }
 
@@ -285,7 +309,7 @@ function buildTable(tableElm, array, edit){
         row.appendChild(cell);
       }
 
-      if(edit){
+      if(type == 'pool'){
         var header = document.createElement('th');
         header.title= 'Edit';
         header.innerText = 'Edit';

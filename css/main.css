@@ -279,3 +279,10 @@ textarea:focus-visible{
     outline: 1px solid #1c5186;
     outline-offset: -1px;
 }
+
+.log_output{
+    border: 1px solid #fff;
+    margin: 10px;
+    font-size: 12px;
+    padding: 10px;
+}

@@ -112,17 +112,16 @@ async function loadMachines(){
     if(USE_DEMO_DATA){
         machines = demo_machines;
     }
-    buildTable('machines', machines.machines);
+    buildTable('machines', machines.machines, 'machine');
     return machines;
 }
 
-async function loadLogs(machines){
-    if(machines.length > 0){
-        // Logs
-        let log_path = `/platform/organization/${orgSlug}/machines/${machines[0].id}/${STAGES.STAGE_TYPE_MAIN}/${TYPES.LOG_TYPE_STDOUT}`;
-        let logs = await get(log_path);
-        console.log('GET Logs: ', logs);
-    }
+async function loadLogs(machineId, stage, type){
+    // Logs
+    let log_path = `/platform/organization/${orgSlug}/machines/${machineId}/${stage}/${type}`;
+    let logs = await get(log_path);
+    console.log('GET Logs: ', logs);
+    return logs;
 }
 
 async function createPool(pool){
@@ -141,7 +140,7 @@ async function loadPools(){
     if(USE_DEMO_DATA){
         pools = demo_pools;
     }
-    buildTable('pools', pools.pools, true);
+    buildTable('pools', pools.pools, 'pool');
     return pools;
 }
 
