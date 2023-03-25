@@ -19,9 +19,10 @@ const TYPES = {
 
 function buildTree(data){
     let root = document.getElementById('tree_root');
+    root.innerHTML = '';
     buildNode('Images', 1, root, data.images, 'stack', '', 'showImages');
     buildNode('Machine Types', 2, root, data.machine_types, 'name', '', 'showMachines');
-    buildNode('Virtual Machines', 3, root, data.machines, 'id', 'createdAt', 'showVirtualMachines', 'showMachine');
+    buildNode('Virtual Machines', 3, root, data.machines, 'id', '', 'showVirtualMachines', 'showMachine');
     buildNestedNode('Pools', 4, root, data.pools, 'id', 'machineTypeId', 'showPools');
 
     // Set up all list trees on the page.
@@ -142,6 +143,7 @@ async function showPool(id){
     document.getElementById('pool_name').innerHTML = '(' + image.stack + ' - ' + machineType.name + ')';
     document.getElementById('pool_thead').innerHTML = '<tr></tr>';
     document.getElementById('pool_tbody').innerHTML = '';
+    document.getElementById('pool_details').innerHTML = JSON.stringify(pool, null, 2);
     buildTable('pool', pool.machines);
 
     // await loadLogs();
@@ -164,6 +166,8 @@ async function showMachine(id){
     document.getElementById('machine_logs_main_stderr').innerHTML = machine_logs_main_stderr.message;
     document.getElementById('machine_logs_warmup_stdout').innerHTML = machine_logs_warmup_stdout.message;
     document.getElementById('machine_logs_warmup_stderr').innerHTML = machine_logs_warmup_stderr.message;
+
+    document.getElementById('machine_details').innerHTML = JSON.stringify(machine, null, 2);
 
     document.getElementById('machine_div').style.display = '';
 }
@@ -215,6 +219,12 @@ async function savePool(id){
         });
         pools = await loadPools();
     }
+    buildTree({
+        images: images.images,
+        machine_types: machine_types.machineTypes,
+        machines: machines.machines,
+        pools: pools.pools
+    })
 }
 async function loadData(){
     images = await loadImages();
@@ -262,7 +272,7 @@ function buildTable(tableElm, array, type){
     if(array.length == 0){
         var row = document.createElement('tr');
         var cell = document.createElement('td');
-        cell.innerHTML = 'No machines in Pool';
+        cell.innerHTML = 'No machines in pool';
         row.appendChild(cell);
         tbody.appendChild(row);
     }

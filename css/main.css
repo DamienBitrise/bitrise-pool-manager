@@ -23,12 +23,18 @@ h1 {
     margin-bottom: 0px;
     font-family: Helvetica, sans-serif;
 }
+h2{
+    border: 1px solid #fff;
+    border-right: none;
+    border-left: none;
+}
 
 .header{
-    height: 30px;
-    margin-left: 20px;
     margin-top: 10px;
-    margin-bottom: 10px;
+    height: 50px;
+    border: 1px solid #fff;
+    border-bottom: none;
+    padding: 10px;
 }
 
 #swaggerSchema, #apiUI {
@@ -65,7 +71,7 @@ label {
 }
 
 input[type="text"], input[type="number"], select {
-    background-color: #444;
+    background-color: #000;
     border: none;
     color: #fff;
     font-family: Arial, sans-serif;
@@ -118,6 +124,8 @@ table {
     width: 100%;
     border: 1px solid #fff;
     box-sizing: border-box;
+    width: calc(100% - 20px);
+    margin: 10px;
 }
 
 th, td {
@@ -157,7 +165,7 @@ tbody tr:nth-child(even) {background-color: #525252;}
 }
 
 .my_row {
-    height: calc(100% - 110px);
+    height: calc(100% - 120px);
     overflow: none;
 }
 /* Clear floats after the columns */
@@ -169,7 +177,7 @@ tbody tr:nth-child(even) {background-color: #525252;}
 
 .left_col{
     width: 400px;
-    background-color: #16171b;
+    background-color:#2a2c33;
     border: 1px solid #ddd;
 }
 
@@ -294,4 +302,21 @@ h3{
 .folder{
     margin-left: -30px;
     cursor: pointer;
+}
+
+.details{
+    border: 1px solid #fff;
+    color: #fff;
+    margin: 10px;
+    font-size: 14px;
+    font-family: monospace;
+    line-height: 1em;
+}
+
+.poolBtn{
+    cursor: pointer;
+    margin-top: 17px;
+    float: right;
+    margin-right: 10px;
+    font-size: 18px;
 }

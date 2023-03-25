@@ -122,6 +122,12 @@ async function deleteMachine(machineId){
     let machine_deleted = await del(machines_edit_path);
     console.log('DELETE Machines: ', machine_deleted);
     machines = await loadMachines();
+    buildTree({
+        images: images.images,
+        machine_types: machine_types.machineTypes,
+        machines: machines.machines,
+        pools: pools.pools
+    })
     return machine_deleted;
 }
 
@@ -167,6 +173,12 @@ async function deletePool(poolId){
     let pool_deleted = await del(pools_edit_path);
     console.log('DELETE Pools: ', pool_deleted);
     pools = await loadPools();
+    buildTree({
+        images: images.images,
+        machine_types: machine_types.machineTypes,
+        machines: machines.machines,
+        pools: pools.pools
+    })
     return pool_deleted;
 }
 

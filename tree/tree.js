@@ -48,7 +48,8 @@ function toggleElement(element, show) {
 
 function buildNestedNode(name, id, parent, pools){
     let outerHTML = `<li class="p-list-tree__item p-list-tree__item--group" role="treeitem">
-        <button class="p-list-tree__toggle" id="sub-${id}-btn" aria-controls="sub-${id}" aria-expanded="true" onclick="showPools()">${name}</button>
+        <button class="p-list-tree__toggle" id="sub-${id}-btn" aria-controls="sub-${id}" aria-expanded="true">&nbsp;</button>
+        <span class="folder" onclick="showPools()">${name}</span>
         <ul class="p-list-tree" role="group" id="sub-${id}" aria-hidden="false" aria-labelledby="sub-${id}-btn">`;
     pools.forEach((pool, index)=>{
         let childHTML = '';
@@ -60,9 +61,11 @@ function buildNestedNode(name, id, parent, pools){
         let image = images.images.find((image)=>image.id==pool.imageId)
         let machineType = machine_types.machineTypes.find((machine_type)=>machine_type.id==pool.machineTypeId)
         
+        let nameStr = image.stack.replace('osx-', '') + ' - ' + machineType.name.replace('g2-', '') + '(' + pool.machines.length + ')';
         let html = `
        <li class="p-list-tree__item p-list-tree__item--group" role="treeitem">
-                <button class="p-list-tree__toggle" id="sub-${id+index+1}-btn" aria-controls="sub-${id+index+1}" aria-expanded="false" onclick="showPool('${pool.id}')">${image.stack.replace('osx-', '')} - ${machineType.name.replace('g2-', '')} (${pool.machines.length})</button>
+                <button class="p-list-tree__toggle" id="sub-${id+index+1}-btn" aria-controls="sub-${id+index+1}" aria-expanded="false" >&nbsp;</button>
+                <span class="folder" onclick="showPool('${pool.id}')">${nameStr}</span>
                 <ul class="p-list-tree" role="group" id="sub-${id+index+1}" aria-hidden="true" aria-labelledby="sub-${id+index+1}-btn">
                     ${childHTML}
                 </ul>

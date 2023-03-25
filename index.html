@@ -11,13 +11,15 @@
       Org Slug: <input id="org_slug" class="small_input" type="text" value="">
       API Key: <input id="api_key" class="large_input" type="text" value="">
       <input id="new_pool" class="small_input" type="button" onclick="connect()" value="Connect" style="cursor: pointer;margin-left: 20px;">
-      <input id="new_pool" class="small_input" type="button" onclick="newPool()" value="New Pool" style="cursor: pointer;float: right;margin-right: 20px;">
       <input id="org_slug" class="small_input" type="button" onclick="showAPI()" value="API" style="cursor: pointer;float: right;margin-right: 20px;">
     </div>
     <div class="my_row">
       <div class="my_column left_col">
-        <ul id="tree_root" class="p-list-tree" aria-multiselectable="true" role="tree">
-        </ul>
+        <H2 class="bordered">Explorer</H2>
+        <div >
+          <ul id="tree_root" class="p-list-tree" aria-multiselectable="true" role="tree">
+          </ul>
+        </div>
       </div>
       <div class="my_column right_col">
 
@@ -60,7 +62,8 @@
       </div>
 
       <div id="pools_div" class="full" style="display: block;">
-        <H2>Pools</H2>
+        <H2>Pools <span class="poolBtn">
+          <input id="new_pool" class="small_input" type="button" onclick="newPool()" value="New Pool" style="cursor: pointer;float: right;margin-right: 20px;"></span></H2>
         <table id="pools">
           <thead>
             <tr>
@@ -76,7 +79,10 @@
           <span style="float: right;">
             <input id="pool_edit" style="font-size: 18px;max-width: 60px;margin-right: 20px;" class="small_input" type="button" onclick="editPool()" value="Edit"></input>
           </span>
-        </H2>
+        </H2>  
+        <h3>Details:</h3>
+        <pre id="pool_details" class="details"></pre>
+        <h3>Machines:</h3>
         <table id="pool">
           <thead id="pool_thead">
             <tr>
@@ -89,6 +95,9 @@
 
       <div id="machine_div" class="full" style="display: none;">
         <H2>Virtual Machine - <span id="machine_name" style="margin-left: 20px;"></span></H2>
+        
+        <h3>Details:</h3>
+        <pre id="machine_details" class="details" ></pre>
 
         <h3>warmup_stdout</h3>
         <div id="machine_logs_warmup_stdout" class="log_output">
