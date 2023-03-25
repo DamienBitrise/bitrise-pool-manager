@@ -116,6 +116,15 @@ async function loadMachines(){
     return machines;
 }
 
+async function deleteMachine(machineId){
+    // Pools DELETE
+    let machines_edit_path = `/platform/organization/${orgSlug}/machines/${machineId}`;
+    let machine_deleted = await del(machines_edit_path);
+    console.log('DELETE Machines: ', machine_deleted);
+    machines = await loadMachines();
+    return machine_deleted;
+}
+
 async function loadLogs(machineId, stage, type){
     // Logs
     let log_path = `/platform/organization/${orgSlug}/machines/${machineId}/${stage}/${type}`;

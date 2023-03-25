@@ -262,7 +262,7 @@ function buildTable(tableElm, array, type){
     if(array.length == 0){
         var row = document.createElement('tr');
         var cell = document.createElement('td');
-        cell.innerHTML = 'No Data';
+        cell.innerHTML = 'No machines in Pool';
         row.appendChild(cell);
         tbody.appendChild(row);
     }
@@ -336,6 +336,15 @@ function buildTable(tableElm, array, type){
 
         var cell = document.createElement('td');
         cell.innerHTML = '<input style="cursor: pointer;background-color: #e12e2e; color: #fff;" class="small_input" type="button" onclick="deletePool(\''+element.id+'\')" value="Delete"></input>';
+        row.appendChild(cell);
+      } else if (type == 'machine'){
+        var header2 = document.createElement('th');
+        header2.title= 'Delete';
+        header2.innerText = 'Delete';
+        table.getElementsByTagName('tr')[0].appendChild(header2);
+
+        var cell = document.createElement('td');
+        cell.innerHTML = '<input style="cursor: pointer;background-color: #e12e2e; color: #fff;" class="small_input" type="button" onclick="deleteMachine(\''+element.id+'\')" value="Delete"></input>';
         row.appendChild(cell);
       }
 
