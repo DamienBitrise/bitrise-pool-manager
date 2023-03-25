@@ -290,3 +290,8 @@ textarea:focus-visible{
 h3{
     margin-left: 10px;
 }
+
+.folder{
+    margin-left: -30px;
+    cursor: pointer;
+}
