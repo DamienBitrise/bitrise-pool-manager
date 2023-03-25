@@ -132,7 +132,7 @@ async function loadImages(){
         connected = true;
         runAgain();
     }
-    console.log('GET Images: ', images);
+    // console.log('GET Images: ', images);
     if(USE_DEMO_DATA){
         images = demo_images;
     }
@@ -144,7 +144,7 @@ async function loadMachineTypes(){
     // Machine Types
     let machine_types_path = `/platform/organization/${orgSlug}/machine_types`;
     let machine_types = await get(machine_types_path);
-    console.log('GET machine_types: ', machine_types);
+    // console.log('GET machine_types: ', machine_types);
     if(USE_DEMO_DATA){
         machine_types = demo_machine_types;
     }
@@ -156,7 +156,7 @@ async function loadMachines(){
     // Machines
     let machines_path = `/platform/organization/${orgSlug}/machines?includeTerminated=false&includeRemoteAccess=false`;
     let machines = await get(machines_path);
-    console.log('GET Machines: ', machines);
+    // console.log('GET Machines: ', machines);
     if(USE_DEMO_DATA){
         machines = demo_machines;
     }
@@ -168,7 +168,7 @@ async function deleteMachine(machineId){
     // Pools DELETE
     let machines_edit_path = `/platform/organization/${orgSlug}/machines/${machineId}`;
     let machine_deleted = await del(machines_edit_path);
-    console.log('DELETE Machines: ', machine_deleted);
+    // console.log('DELETE Machines: ', machine_deleted);
     machines = await loadMachines();
     buildTree({
         images: images.images,
@@ -183,7 +183,7 @@ async function loadLogs(machineId, stage, type, callback){
     // Logs
     let log_path = `/platform/organization/${orgSlug}/machines/${machineId}/logs/${stage}/${type}`;
     let logs = await getChunks(log_path, callback);
-    console.log('GET Logs: ', logs);
+    // console.log('GET Logs: ', logs);
     return logs;
 }
 
@@ -191,7 +191,7 @@ async function createPool(pool){
     // Pools POST
     let pools_path = `/platform/organization/${orgSlug}/pools`;
     let pool_created = await post(pools_path, pool);
-    console.log('POST Pool: ', pool_created);
+    // console.log('POST Pool: ', pool_created);
     return pool_created;
 }
 
@@ -199,7 +199,7 @@ async function loadPools(){
     // Pools GET
     let pools_path = `/platform/organization/${orgSlug}/pools?includeMachines=true&includeDeleted=false&includeScripts=true&includeTerminatedMachines=false&includeRemoteAccess=false`;
     let pools = await get(pools_path);
-    console.log('GET Pools: ', pools);
+    // console.log('GET Pools: ', pools);
     if(USE_DEMO_DATA){
         pools = demo_pools;
     }
@@ -219,7 +219,7 @@ async function deletePool(poolId){
     // Pools DELETE
     let pools_edit_path = `/platform/organization/${orgSlug}/pools/${poolId}`;
     let pool_deleted = await del(pools_edit_path);
-    console.log('DELETE Pools: ', pool_deleted);
+    // console.log('DELETE Pools: ', pool_deleted);
     pools = await loadPools();
     buildTree({
         images: images.images,
@@ -371,7 +371,7 @@ function generateUI() {
 
 let pollingInterval = 1000;
 async function pollAPI(){
-    console.log('Polling for updates');
+    // console.log('Polling for updates');
     let green1 = 'rgb(128, 204, 128)';
     let green2 = 'rgb(0, 128, 0)';
     let dot = document.getElementById("polling1");

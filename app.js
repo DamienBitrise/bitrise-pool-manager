@@ -76,31 +76,47 @@ function newPool(){
     document.getElementById('warmupScript').value = 
 `echo "Warm Up Script"
 
-echo "Downloading from https://github.com/actions/runner/releases/download/v2.303.0/actions-runner-osx-arm64-2.303.0.tar.gz"
+echo "cd /Users/vagrant/git"
+cd /Users/vagrant/git
 
+echo "Downloading from https://github.com/actions/runner/releases/download/v2.303.0/actions-runner-osx-arm64-2.303.0.tar.gz"
 curl -o actions-runner-osx-arm64-2.303.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.303.0/actions-runner-osx-arm64-2.303.0.tar.gz
 
 echo "ls -la"
+ls -la
 
+echo "chmod 777 ./actions-runner-osx-arm64-2.303.0.tar.gz"
+chmod 777 ./actions-runner-osx-arm64-2.303.0.tar.gz
+
+echo "ls -la"
 ls -la
 
 echo "Extract the installer"
+sudo tar xzf ./actions-runner-osx-arm64-2.303.0.tar.gz
 
-tar xzf ./actions-runner-osx-arm64-2.303.0.tar.gz
+echo "ls -la"
+ls -la
 `;
+
     document.getElementById('startupScript').value = 
 `echo "Start Up Script"
 
-echo "ls -la"
+echo "cd /Users/vagrant/git"
+cd /Users/vagrant/git
 
+echo "ls -la"
+ls -la
+
+echo "chmod 777 ./config.sh"
+chmod 777 ./config.sh
+
+echo "ls -la"
 ls -la
 
 echo "Initialize GitHub Actions Runner"
-
 ./config.sh --url https://github.com/DamienBitrise/Bitrise-iOS-Sample --token AOQTTKP4II36KC6BQPF64MDED4P62
 
 echo "Last step, run it!"
-
 ./run.sh
 `;
     document.getElementById('useLocalCacheDisk').value = 'false';
@@ -276,68 +292,6 @@ async function showMachine(id){
     warmup_stdout.innerHTML = 'Loading...';
     warmup_stderr.innerHTML = 'Loading...';
     loadLogs(machine.id, STAGES.STAGE_TYPE_WARMUP, TYPES.LOG_TYPE_STDOUT, (response)=>{
-        main_stdout.innerHTML = '';
-        var text = '';
-        var reader = response.body.getReader()
-        var decoder = new TextDecoder();
-        
-        return readChunk();
-        
-        function readChunk() {
-            return reader.read().then(appendChunks);
-        }
-        
-        function appendChunks(result) {
-            var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
-            let json = JSON.parse(chunk);
-            if(json.error){
-                main_stdout.innerHTML = json.error.message;
-            } else {
-                let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
-                text += formatted;
-                main_stdout.innerHTML += formatted;
-                if (result.done) {
-                    console.log('returning')
-                    return text;
-                } else {
-                    console.log('recursing')
-                    return readChunk();
-                }
-            }
-        }
-    });
-    loadLogs(machine.id, STAGES.STAGE_TYPE_WARMUP, TYPES.LOG_TYPE_STDERR, (response)=>{
-        main_stderr.innerHTML = '';
-        var text = '';
-        var reader = response.body.getReader()
-        var decoder = new TextDecoder();
-        
-        return readChunk();
-        
-        function readChunk() {
-            return reader.read().then(appendChunks);
-        }
-        
-        function appendChunks(result) {
-            var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
-            let json = JSON.parse(chunk);
-            if(json.error){
-                main_stderr.innerHTML = json.error.message;
-            } else {
-                let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
-                text += formatted;
-                main_stderr.innerHTML += formatted;
-                if (result.done) {
-                    console.log('returning')
-                    return text;
-                } else {
-                    console.log('recursing')
-                    return readChunk();
-                }
-            }
-        }
-    })
-    loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDOUT, (response)=>{
         warmup_stdout.innerHTML = '';
         var text = '';
         var reader = response.body.getReader()
@@ -367,9 +321,8 @@ async function showMachine(id){
                 }
             }
         }
-    })
-    
-    loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDERR, (response)=>{
+    });
+    loadLogs(machine.id, STAGES.STAGE_TYPE_WARMUP, TYPES.LOG_TYPE_STDERR, (response)=>{
         warmup_stderr.innerHTML = '';
         var text = '';
         var reader = response.body.getReader()
@@ -390,6 +343,69 @@ async function showMachine(id){
                 let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
                 text += formatted;
                 warmup_stderr.innerHTML += formatted;
+                if (result.done) {
+                    console.log('returning')
+                    return text;
+                } else {
+                    console.log('recursing')
+                    return readChunk();
+                }
+            }
+        }
+    })
+    loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDOUT, (response)=>{
+        main_stdout.innerHTML = '';
+        var text = '';
+        var reader = response.body.getReader()
+        var decoder = new TextDecoder();
+        
+        return readChunk();
+        
+        function readChunk() {
+            return reader.read().then(appendChunks);
+        }
+        
+        function appendChunks(result) {
+            var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
+            let json = JSON.parse(chunk);
+            if(json.error){
+                main_stdout.innerHTML = json.error.message;
+            } else {
+                let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
+                text += formatted;
+                main_stdout.innerHTML += formatted;
+                if (result.done) {
+                    console.log('returning')
+                    return text;
+                } else {
+                    console.log('recursing')
+                    return readChunk();
+                }
+            }
+        }
+    })
+    
+    loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDERR, (response)=>{
+        main_stderr.innerHTML = '';
+        var text = '';
+        var reader = response.body.getReader()
+        var decoder = new TextDecoder();
+        
+        return readChunk();
+        
+        function readChunk() {
+            return reader.read().then(appendChunks);
+        }
+        
+        function appendChunks(result) {
+            var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
+            let json = JSON.parse(chunk);
+            if(json.error){
+                main_stderr.innerHTML = json.error.message;
+            } else {
+                let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
+                text += formatted;
+                main_stderr.innerHTML += formatted;
 
                 if (result.done) {
                     console.log('returning')
@@ -442,14 +458,8 @@ async function savePool(id){
             "useLocalCacheDisk": useLocalCacheDisk == 'true' ? true : false,
             "metalEnabled": metalEnabled == 'true' ? true : false
         });
-        pools = await loadPools();
 
-        buildTree({
-            images: images.images,
-            machine_types: machine_types.machineTypes,
-            machines: machines.machines,
-            pools: pools.pools
-        })
+        loadData();
     } else {
         let pool_created = await createPool({
             "desiredReplicas": parseInt(desiredReplicas),
@@ -463,14 +473,7 @@ async function savePool(id){
             "useLocalCacheDisk": useLocalCacheDisk == 'true' ? true : false,
             "metalEnabled": metalEnabled == 'true' ? true : false
         });
-        pools = await loadPools();
-
-        buildTree({
-            images: images.images,
-            machine_types: machine_types.machineTypes,
-            machines: machines.machines,
-            pools: pools.pools
-        })
+        loadData();
     }
     buildTree({
         images: images.images,
