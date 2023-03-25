@@ -159,7 +159,7 @@ async function deleteMachine(machineId){
 
 async function loadLogs(machineId, stage, type){
     // Logs
-    let log_path = `/platform/organization/${orgSlug}/machines/${machineId}/${stage}/${type}`;
+    let log_path = `/platform/organization/${orgSlug}/machines/${machineId}/logs/${stage}/${type}`;
     let logs = await get(log_path);
     console.log('GET Logs: ', logs);
     return logs;

@@ -225,19 +225,48 @@ async function showMachine(id){
     let machine = machines.machines.find((machine_type)=>machine_type.id==id)
     document.getElementById('machine_name').innerHTML = '(' + machine.id + ')';
 
-    let machine_logs_main_stdout = await loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDOUT);
-    let machine_logs_main_stderr = await loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDERR);
-    let machine_logs_warmup_stdout = await loadLogs(machine.id, STAGES.STAGE_TYPE_WARMUP, TYPES.LOG_TYPE_STDOUT);
-    let machine_logs_warmup_stderr = await loadLogs(machine.id, STAGES.STAGE_TYPE_WARMUP, TYPES.LOG_TYPE_STDERR);
-
-    document.getElementById('machine_logs_main_stdout').innerHTML = machine_logs_main_stdout.message;
-    document.getElementById('machine_logs_main_stderr').innerHTML = machine_logs_main_stderr.message;
-    document.getElementById('machine_logs_warmup_stdout').innerHTML = machine_logs_warmup_stdout.message;
-    document.getElementById('machine_logs_warmup_stderr').innerHTML = machine_logs_warmup_stderr.message;
-
     document.getElementById('machine_details').innerHTML = JSON.stringify(machine, null, 2);
 
     document.getElementById('machine_div').style.display = '';
+
+    let main_stdout = document.getElementById('machine_logs_main_stdout');
+    let main_stderr = document.getElementById('machine_logs_main_stderr');
+    let warmup_stdout = document.getElementById('machine_logs_warmup_stdout');
+    let warmup_stderr = document.getElementById('machine_logs_warmup_stderr');
+    main_stdout.innerHTML = 'Loading...';
+    main_stderr.innerHTML = 'Loading...';
+    warmup_stdout.innerHTML = 'Loading...';
+    warmup_stderr.innerHTML = 'Loading...';
+    let machine_logs_warmup_stdout = await loadLogs(machine.id, STAGES.STAGE_TYPE_WARMUP, TYPES.LOG_TYPE_STDOUT);
+    let machine_logs_warmup_stderr = await loadLogs(machine.id, STAGES.STAGE_TYPE_WARMUP, TYPES.LOG_TYPE_STDERR);
+
+    let machine_logs_main_stdout = await loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDOUT);
+    let machine_logs_main_stderr = await loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDERR);
+    
+
+    if(machine_logs_main_stdout.message){
+        main_stdout.innerHTML = machine_logs_main_stdout.message;
+    } else {
+        main_stdout.innerHTML = machine_logs_main_stdout.result.logContent;
+    }
+
+    if(machine_logs_main_stderr.message){
+        main_stderr.innerHTML = machine_logs_main_stderr.message;
+    } else {
+        main_stderr.innerHTML = machine_logs_main_stderr.result.logContent;
+    }
+
+    if(machine_logs_main_stderr.message){
+        warmup_stdout.innerHTML = machine_logs_warmup_stdout.message;
+    } else {
+        warmup_stdout.innerHTML = machine_logs_warmup_stdout.result.logContent;
+    }
+    
+    if(machine_logs_main_stderr.message){
+        warmup_stderr.innerHTML = machine_logs_warmup_stderr.message;
+    } else {
+        warmup_stderr.innerHTML = machine_logs_warmup_stderr.result.logContent;
+    }
 }
 
 function showAPI(){
