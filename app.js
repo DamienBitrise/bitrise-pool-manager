@@ -129,6 +129,53 @@ function editPool(id){
     document.getElementById('edit_pool_div').style.display = '';
 }
 
+function clearUI(){
+    // Pool Details
+    document.getElementById('pool_name').innerHTML = '';
+    document.getElementById('pool_thead').innerHTML = '<tr></tr>';
+    document.getElementById('pool_tbody').innerHTML = '';
+    document.getElementById('pool_details').innerHTML = '';
+
+    // Machine Details
+    document.getElementById('machine_logs_main_stdout').innerHTML = '';
+    document.getElementById('machine_logs_main_stderr').innerHTML = '';
+    document.getElementById('machine_logs_warmup_stdout').innerHTML = '';
+    document.getElementById('machine_logs_warmup_stderr').innerHTML = '';
+    document.getElementById('machine_name').innerHTML = '';
+    document.getElementById('machine_details').innerHTML = '';
+
+    // Pools
+    var table1 = document.getElementById('pools');
+    var tbody1 = table1.getElementsByTagName('tbody')[0];
+    table1.getElementsByTagName('tr')[0].innerHTML = '';
+    tbody1.innerHTML = '';
+    var thead1 = table1.getElementsByTagName('thead')[0];
+    thead1.innerHTML = '<tr></tr>';
+
+    // Images
+    var table2 = document.getElementById('images');
+    var tbody2 = table2.getElementsByTagName('tbody')[0];
+    table2.getElementsByTagName('tr')[0].innerHTML = '';
+    tbody2.innerHTML = '';
+    var thead2 = table2.getElementsByTagName('thead')[0];
+    thead2.innerHTML = '<tr></tr>';
+
+    // Machines
+    var table3 = document.getElementById('machine_types');
+    var tbody3 = table3.getElementsByTagName('tbody')[0];
+    table3.getElementsByTagName('tr')[0].innerHTML = '';
+    tbody3.innerHTML = '';
+    var thead3 = table3.getElementsByTagName('thead')[0];
+    thead3.innerHTML = '<tr></tr>';
+
+    // Virtual Machines
+    var table4 = document.getElementById('machines');
+    var tbody4 = table4.getElementsByTagName('tbody')[0];
+    table4.getElementsByTagName('tr')[0].innerHTML = '';
+    tbody4.innerHTML = '';
+    var thead4 = table4.getElementsByTagName('thead')[0];
+    thead4.innerHTML = '<tr></tr>';
+}
 async function showPool(id){
     hideAll();
     document.getElementById('pool_edit').onclick = function() { editPool(id); };
@@ -375,4 +422,4 @@ function connect(hideError){
 }
 
 generateUI();
-connect(true);
+// connect(true);

@@ -84,6 +84,29 @@ async function loadImages(){
     // Images
     let images_path = `/platform/organization/${orgSlug}/images`;
     let images = await get(images_path);
+
+    if(images && images.message){
+        let red = 'rgb(128, 0, 0)';
+
+        document.getElementById("polling1").style.color = red;
+    
+        let text = document.getElementById("polling2");
+        text.innerHTML = 'Disconnected';
+        text.style.color = red;
+
+        let root = document.getElementById('tree_root');
+        root.innerHTML = '';
+
+        if(pollingTimeout){
+            clearTimeout(pollingTimeout);
+        }
+
+        clearUI();
+
+        setTimeout(()=>{alert('Error: ' + images.message);}, 0)
+    } else {
+        runAgain();
+    }
     console.log('GET Images: ', images);
     if(USE_DEMO_DATA){
         images = demo_images;
@@ -324,19 +347,28 @@ function generateUI() {
 let pollingInterval = 1000;
 async function pollAPI(){
     console.log('Polling for updates');
-    let color = document.getElementById("polling").style.color;
-    if(color == 'rgb(128, 204, 128)'){
-        document.getElementById("polling").style.color = 'rgb(0, 128, 0)';
+    let green1 = 'rgb(128, 204, 128)';
+    let green2 = 'rgb(0, 128, 0)';
+    let dot = document.getElementById("polling1");
+    let color = dot.style.color;
+
+    let text = document.getElementById("polling2");
+    text.innerHTML = 'Connected';
+
+    // flash the status when polling
+    if(color == green1){
+        dot.style.color = green2;
+        text.style.color = green2;
     } else {
-        document.getElementById("polling").style.color = 'rgb(128, 204, 128)';
+        dot.style.color = green1;
+        text.style.color = green1;
     }
     await loadPools();
 }
-
+let pollingTimeout = null;
 function runAgain(){
-    setTimeout(async ()=>{
+    pollingTimeout = setTimeout(async ()=>{
         await pollAPI();
         runAgain()
     }, pollingInterval)
 }
-runAgain();
