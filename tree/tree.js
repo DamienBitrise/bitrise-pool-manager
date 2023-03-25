@@ -35,11 +35,11 @@ function toggleElement(element, show) {
     let html = `
     <li class="p-list-tree__item p-list-tree__item--group" role="treeitem">
       <span>
-        <button class="p-list-tree__toggle" id="sub-${id}-btn" aria-controls="sub-${id}" aria-expanded="true" onclick="${action}()">&nbsp;</button>
+        <button class="p-list-tree__toggle" id="sub-${id}-btn" aria-controls="sub-${id}" aria-expanded="${name == 'Images' || name =='Machine Types' ? 'false' : 'true'}" onclick="${action}()">&nbsp;</button>
       
         <span class="folder" onclick="${action}()">${name}</span>
       </span>
-      <ul class="p-list-tree" role="group" id="sub-${id}" aria-hidden="false" aria-labelledby="sub-${id}-btn">
+      <ul class="p-list-tree" role="group" id="sub-${id}" aria-hidden="${name == 'Images' || name =='Machine Types' ? 'true' : 'false'}" aria-labelledby="sub-${id}-btn">
         ${childHTML}
       </ul>
     </li>`;

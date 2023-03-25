@@ -20,10 +20,10 @@ const TYPES = {
 function buildTree(data){
     let root = document.getElementById('tree_root');
     root.innerHTML = '';
+    buildNestedNode('Pools', 4, root, data.pools, 'id', 'machineTypeId', 'showPools');
+    buildNode('Virtual Machines', 3, root, data.machines, 'id', '', 'showVirtualMachines', 'showMachine');
     buildNode('Images', 1, root, data.images, 'stack', '', 'showImages');
     buildNode('Machine Types', 2, root, data.machine_types, 'name', '', 'showMachines');
-    buildNode('Virtual Machines', 3, root, data.machines, 'id', '', 'showVirtualMachines', 'showMachine');
-    buildNestedNode('Pools', 4, root, data.pools, 'id', 'machineTypeId', 'showPools');
 
     // Set up all list trees on the page.
     var listTreeToggles = document.querySelectorAll('.p-list-tree__toggle');
