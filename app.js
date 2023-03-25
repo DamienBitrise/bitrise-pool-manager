@@ -237,44 +237,168 @@ async function showMachine(id){
     main_stderr.innerHTML = 'Loading...';
     warmup_stdout.innerHTML = 'Loading...';
     warmup_stderr.innerHTML = 'Loading...';
-    let machine_logs_warmup_stdout = await loadLogs(machine.id, STAGES.STAGE_TYPE_WARMUP, TYPES.LOG_TYPE_STDOUT);
-    let machine_logs_warmup_stderr = await loadLogs(machine.id, STAGES.STAGE_TYPE_WARMUP, TYPES.LOG_TYPE_STDERR);
+    loadLogs(machine.id, STAGES.STAGE_TYPE_WARMUP, TYPES.LOG_TYPE_STDOUT, (response)=>{
+        main_stdout.innerHTML = '';
+        var text = '';
+        var reader = response.body.getReader()
+        var decoder = new TextDecoder();
+        
+        return readChunk();
+        
+        function readChunk() {
+            return reader.read().then(appendChunks);
+        }
+        
+        function appendChunks(result) {
+            var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
+            console.log('got chunk of', chunk.length, 'bytes')
+            let json = JSON.parse(chunk);
+            let formatted = json.result.logContent.replace('\n', '<br>')
+            text += formatted;
+            main_stdout.innerHTML += formatted;
+            console.log('text so far is', text.length, 'bytes\n', text);
+            if (result.done) {
+                console.log('returning')
+                return text;
+            } else {
+                console.log('recursing')
+                return readChunk();
+            }
+        }
+    });
 
-    let machine_logs_main_stdout = await loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDOUT);
-    let machine_logs_main_stderr = await loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDERR);
+            // if(chunk.message){
+            //     main_stdout.innerHTML = chunk.message;
+            // } else if(chunk.error){
+            //     main_stdout.innerHTML = chunk.error.message;
+            // } else {
+            //     main_stdout.innerHTML = chunk;
+            // }
+    loadLogs(machine.id, STAGES.STAGE_TYPE_WARMUP, TYPES.LOG_TYPE_STDERR, (response)=>{
+        main_stderr.innerHTML = '';
+        var text = '';
+        var reader = response.body.getReader()
+        var decoder = new TextDecoder();
+        
+        return readChunk();
+        
+        function readChunk() {
+            return reader.read().then(appendChunks);
+        }
+        
+        function appendChunks(result) {
+            var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
+            console.log('got chunk of', chunk.length, 'bytes')
+            let json = JSON.parse(chunk);
+            let formatted = json.result.logContent.replace('\n', '<br>')
+            text += formatted;
+            main_stderr.innerHTML += formatted;
+            console.log('text so far is', text.length, 'bytes\n', text);
+            if (result.done) {
+                console.log('returning')
+                return text;
+            } else {
+                console.log('recursing')
+                return readChunk();
+            }
+        }
+    })
     
-
-    if(machine_logs_main_stdout.message){
-        main_stdout.innerHTML = machine_logs_main_stdout.message;
-    } else if(machine_logs_main_stdout.error){
-        main_stdout.innerHTML = machine_logs_main_stdout.error.message;
-    } else {
-        main_stdout.innerHTML = machine_logs_main_stdout.result.logContent;
-    }
-
-    if(machine_logs_main_stderr.message){
-        main_stderr.innerHTML = machine_logs_main_stderr.message;
-    } else if(machine_logs_main_stderr.error){
-        main_stderr.innerHTML = machine_logs_main_stderr.error.message;
-    } else {
-        main_stderr.innerHTML = machine_logs_main_stderr.result.logContent;
-    }
-
-    if(machine_logs_main_stderr.message){
-        warmup_stdout.innerHTML = machine_logs_warmup_stdout.message;
-    } else if(machine_logs_main_stderr.error){
-        warmup_stdout.innerHTML = machine_logs_warmup_stdout.error.message;
-    } else {
-        warmup_stdout.innerHTML = machine_logs_warmup_stdout.result.logContent;
-    }
+    // (chunk)=>{
+    //     if(chunk.message){
+    //         main_stderr.innerHTML = chunk.message;
+    //     } else if(chunk.error){
+    //         main_stderr.innerHTML = chunk.error.message;
+    //     } else {
+    //         main_stderr.innerHTML = chunk;
+    //     }
+    // });
+    loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDOUT, (response)=>{
+        warmup_stdout.innerHTML = '';
+        var text = '';
+        var reader = response.body.getReader()
+        var decoder = new TextDecoder();
+        
+        return readChunk();
+        
+        function readChunk() {
+            return reader.read().then(appendChunks);
+        }
+        
+        function appendChunks(result) {
+            var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
+            console.log('got chunk of', chunk.length, 'bytes')
+            let json = JSON.parse(chunk);
+            let formatted = json.result.logContent.replace('\n', '<br>')
+            text += formatted;
+            warmup_stdout.innerHTML += formatted;
+            // if(chunk.message){
+            //     main_stdout.innerHTML = chunk.message;
+            // } else if(chunk.error){
+            //     main_stdout.innerHTML = chunk.error.message;
+            // } else {
+            //     main_stdout.innerHTML = chunk;
+            // }
+            console.log('text so far is', text.length, 'bytes\n', text);
+            if (result.done) {
+                console.log('returning')
+                return text;
+            } else {
+                console.log('recursing')
+                return readChunk();
+            }
+        }
+    })
     
-    if(machine_logs_main_stderr.message){
-        warmup_stderr.innerHTML = machine_logs_warmup_stderr.message;
-    } else if(machine_logs_main_stderr.error){
-        warmup_stderr.innerHTML = machine_logs_warmup_stderr.error.message;
-    } else {
-        warmup_stderr.innerHTML = machine_logs_warmup_stderr.result.logContent;
-    }
+    // (chunk)=>{
+    //     if(chunk.message){
+    //         warmup_stdout.innerHTML = chunk.message;
+    //     } else if(chunk.error){
+    //         warmup_stdout.innerHTML = chunk.error.message;
+    //     } else {
+    //         warmup_stdout.innerHTML = chunk;
+    //     }
+    // });
+    loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDERR, (response)=>{
+        warmup_stderr.innerHTML = '';
+        var text = '';
+        var reader = response.body.getReader()
+        var decoder = new TextDecoder();
+        
+        return readChunk();
+        
+        function readChunk() {
+            return reader.read().then(appendChunks);
+        }
+        
+        function appendChunks(result) {
+            var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
+            console.log('got chunk of', chunk.length, 'bytes')
+            let json = JSON.parse(chunk);
+            let formatted = json.result.logContent.replace('\n', '<br>')
+            text += formatted;
+            warmup_stderr.innerHTML += formatted;
+
+            console.log('text so far is', text.length, 'bytes\n', text);
+            if (result.done) {
+                console.log('returning')
+                return text;
+            } else {
+                console.log('recursing')
+                return readChunk();
+            }
+        }
+    })
+    
+    // (chunk)=>{
+    //     if(chunk.message){
+    //         warmup_stderr.innerHTML = chunk.message;
+    //     } else if(chunk.error){
+    //         warmup_stderr.innerHTML = chunk.error.message;
+    //     } else {
+    //         warmup_stderr.innerHTML = chunk;
+    //     }
+    // });
 }
 
 function showAPI(){

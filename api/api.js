@@ -19,6 +19,28 @@ async function get(path){
     }
 }
 
+async function getChunks(path, callback){
+    const url = new URL(BASE_URL + path);
+    try {
+        let params = {
+            method: 'GET',
+            headers: {
+                'accept': 'application/json',
+                'Authorization': api_key,
+            }
+        };
+        fetch(url, params)
+            .then(callback)
+            .then(onChunkedResponseComplete)
+            .catch(onChunkedResponseError);
+    } catch (error) {
+        console.log('error:', error);
+        return error;
+    }
+}
+
+
+
 async function del(path){
     const url = new URL(BASE_URL + path);
     try {
@@ -157,10 +179,10 @@ async function deleteMachine(machineId){
     return machine_deleted;
 }
 
-async function loadLogs(machineId, stage, type){
+async function loadLogs(machineId, stage, type, callback){
     // Logs
     let log_path = `/platform/organization/${orgSlug}/machines/${machineId}/logs/${stage}/${type}`;
-    let logs = await get(log_path);
+    let logs = await getChunks(log_path, callback);
     console.log('GET Logs: ', logs);
     return logs;
 }
@@ -386,3 +408,37 @@ async function runAgain(){
         runAgain()
     }, pollingInterval)
 }
+
+function onChunkedResponseComplete(result) {
+    console.log('all done!', result)
+  }
+  
+  function onChunkedResponseError(err) {
+    console.error(err)
+  }
+  
+  function processChunkedResponse(response) {
+    var text = '';
+    var reader = response.body.getReader()
+    var decoder = new TextDecoder();
+    
+    return readChunk();
+  
+    function readChunk() {
+      return reader.read().then(appendChunks);
+    }
+  
+    function appendChunks(result) {
+      var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
+      console.log('got chunk of', chunk.length, 'bytes')
+      text += chunk;
+      console.log('text so far is', text.length, 'bytes\n', text);
+      if (result.done) {
+        console.log('returning')
+        return text;
+      } else {
+        console.log('recursing')
+        return readChunk();
+      }
+    }
+  }

@@ -292,9 +292,12 @@ textarea:focus-visible{
 
 .log_output{
     border: 1px solid #ddd;
+    background-color: #000;
     margin: 10px;
     font-size: 12px;
     padding: 10px;
+    max-height: 200px;
+    overflow: scroll;
 }
 
 h3{
@@ -308,6 +311,7 @@ h3{
 
 .details{
     border: 1px solid #ddd;
+    background-color: #000;
     color: #ddd;
     margin: 10px;
     font-size: 14px;
