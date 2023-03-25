@@ -103,8 +103,11 @@ async function loadImages(){
 
         clearUI();
 
+        connected = false;
+
         setTimeout(()=>{alert('Error: ' + images.message);}, 0)
     } else {
+        connected = true;
         runAgain();
     }
     console.log('GET Images: ', images);

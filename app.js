@@ -6,6 +6,7 @@ let images = null;
 let machine_types = null;
 let machines = null;
 let is_edit_pool = false;
+let connected = false;
 
 const STAGES = {
     STAGE_TYPE_WARMUP: 'STAGE_TYPE_WARMUP',
@@ -44,20 +45,26 @@ function hideAll(){
 }
 
 function newPool(){
+    if(!connected){
+        alert('You are not connected to the API');
+        return;
+    }
     is_edit_pool = false;
     hideAll();
 
     document.getElementById('pool_save').onclick = async function() { 
-        await savePool(); 
-        await loadPools();
-        showPools();
+        let success = await savePool(); 
+        if(success){
+            await loadPools();
+            showPools();
+        }
     };
 
     document.getElementById('desiredReplicas').value = 1;
     document.getElementById('rollingUpdateMaxUnavailablePercentage').value = 50;
     document.getElementById('rebootIntervalMinutes').value = 60;
-    document.getElementById('warmupScript').value = '';
-    document.getElementById('startupScript').value = '';
+    document.getElementById('warmupScript').value = 'echo "Warm Up Script"';
+    document.getElementById('startupScript').value = 'echo "Start Up Script"';
     document.getElementById('useLocalCacheDisk').value = 'false';
     document.getElementById('metalEnabled').value = 'true';
 
@@ -101,9 +108,11 @@ function editPool(id){
     hideAll();
     document.getElementById('pool_id').innerHTML = id;
     document.getElementById('pool_save').onclick = async function() { 
-        await savePool(id); 
-        await loadPools();
-        showPools();
+        let success = await savePool(id); 
+        if(success){
+            await loadPools();
+            showPools();
+        }
     };
     let pool = pools.pools.find((pool)=>pool.id==id);
     document.getElementById('desiredReplicas').value = pool["desiredReplicas"];
@@ -180,9 +189,11 @@ async function showPool(id){
     hideAll();
     document.getElementById('pool_edit').onclick = function() { editPool(id); };
     document.getElementById('pool_save').onclick = async function() { 
-        await savePool(id); 
-        await loadPools();
-        showPools();
+        let success = await savePool(id); 
+        if(success){
+            await loadPools();
+            showPools();
+        }
     };
     let pool = pools.pools.find((pool)=>pool.id==id);
     let image = images.images.find((image)=>image.id==pool.imageId)
@@ -220,16 +231,24 @@ async function showMachine(id){
 }
 
 function showAPI(){
+    if(!connected){
+        alert('You are not connected to the API');
+        return;
+    }
     hideAll();
     document.getElementById('api_div').style.display = '';
 }
 
 async function savePool(id){
+    let warmupScript = document.getElementById('warmupScript').value;
+    let startupScript = document.getElementById('startupScript').value;
+    if(!warmupScript || !startupScript){
+        alert('You must specify both a Warm Up & Start Up Script');
+        return false;
+    }
     let desiredReplicas = document.getElementById('desiredReplicas').value;
     let rollingUpdateMaxUnavailablePercentage = document.getElementById('rollingUpdateMaxUnavailablePercentage').value;
     let rebootIntervalMinutes = document.getElementById('rebootIntervalMinutes').value;
-    let warmupScript = document.getElementById('warmupScript').value;
-    let startupScript = document.getElementById('startupScript').value;
     let useLocalCacheDisk = document.getElementById('useLocalCacheDisk').value;
     let metalEnabled = document.getElementById('metalEnabled').value;
 
@@ -272,6 +291,7 @@ async function savePool(id){
         machines: machines.machines,
         pools: pools.pools
     })
+    return true;
 }
 async function loadData(){
     images = await loadImages();
@@ -313,8 +333,9 @@ function buildTable(tableElm, array, type){
     // Get the table element and tbody
     var table = document.getElementById(tableElm);
     var tbody = table.getElementsByTagName('tbody')[0];
+    var thead = table.getElementsByTagName('thead')[0];
     tbody.innerHTML = '';
-    table.getElementsByTagName('tr')[0].innerHTML = '';
+    thead.getElementsByTagName('tr')[0].innerHTML = '';
 
     if(array.length == 0){
         var row = document.createElement('tr');
@@ -377,22 +398,13 @@ function buildTable(tableElm, array, type){
       }
 
       if(type == 'pool'){
-        var header = document.createElement('th');
-        header.title= 'Edit';
-        header.innerText = 'Edit';
-        table.getElementsByTagName('tr')[0].appendChild(header);
-
-        var header2 = document.createElement('th');
-        header2.title= 'Delete';
-        header2.innerText = 'Delete';
-        table.getElementsByTagName('tr')[0].appendChild(header2);
 
         var cell = document.createElement('td');
         cell.innerHTML = '<input style="cursor: pointer;" class="small_input" type="button" onclick="editPool(\''+element.id+'\')" value="Edit"></input>';
         row.appendChild(cell);
 
         var cell = document.createElement('td');
-        cell.innerHTML = '<input style="cursor: pointer;background-color: #e12e2e; color: #fff;" class="small_input" type="button" onclick="deletePool(\''+element.id+'\')" value="Delete"></input>';
+        cell.innerHTML = '<input style="cursor: pointer;background-color: #e12e2e; color: #ddd;" class="small_input" type="button" onclick="deletePool(\''+element.id+'\')" value="Delete"></input>';
         row.appendChild(cell);
       } else if (type == 'machine'){
         var header2 = document.createElement('th');
@@ -401,12 +413,24 @@ function buildTable(tableElm, array, type){
         table.getElementsByTagName('tr')[0].appendChild(header2);
 
         var cell = document.createElement('td');
-        cell.innerHTML = '<input style="cursor: pointer;background-color: #e12e2e; color: #fff;" class="small_input" type="button" onclick="deleteMachine(\''+element.id+'\')" value="Delete"></input>';
+        cell.innerHTML = '<input style="cursor: pointer;background-color: #e12e2e; color: #ddd;" class="small_input" type="button" onclick="deleteMachine(\''+element.id+'\')" value="Delete"></input>';
         row.appendChild(cell);
       }
 
       // Add the row to the tbody
       tbody.appendChild(row);
+    }
+
+    if(type == 'pool'){
+        var header = document.createElement('th');
+        header.title= 'Edit';
+        header.innerText = 'Edit';
+        thead.getElementsByTagName('tr')[0].appendChild(header);
+
+        var header2 = document.createElement('th');
+        header2.title= 'Delete';
+        header2.innerText = 'Delete';
+        thead.getElementsByTagName('tr')[0].appendChild(header2);
     }
 }
 
