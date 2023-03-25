@@ -246,24 +246,32 @@ async function showMachine(id){
 
     if(machine_logs_main_stdout.message){
         main_stdout.innerHTML = machine_logs_main_stdout.message;
+    } else if(machine_logs_main_stdout.error){
+        main_stdout.innerHTML = machine_logs_main_stdout.error.message;
     } else {
         main_stdout.innerHTML = machine_logs_main_stdout.result.logContent;
     }
 
     if(machine_logs_main_stderr.message){
         main_stderr.innerHTML = machine_logs_main_stderr.message;
+    } else if(machine_logs_main_stderr.error){
+        main_stderr.innerHTML = machine_logs_main_stderr.error.message;
     } else {
         main_stderr.innerHTML = machine_logs_main_stderr.result.logContent;
     }
 
     if(machine_logs_main_stderr.message){
         warmup_stdout.innerHTML = machine_logs_warmup_stdout.message;
+    } else if(machine_logs_main_stderr.error){
+        warmup_stdout.innerHTML = machine_logs_warmup_stdout.error.message;
     } else {
         warmup_stdout.innerHTML = machine_logs_warmup_stdout.result.logContent;
     }
     
     if(machine_logs_main_stderr.message){
         warmup_stderr.innerHTML = machine_logs_warmup_stderr.message;
+    } else if(machine_logs_main_stderr.error){
+        warmup_stderr.innerHTML = machine_logs_warmup_stderr.error.message;
     } else {
         warmup_stderr.innerHTML = machine_logs_warmup_stderr.result.logContent;
     }
