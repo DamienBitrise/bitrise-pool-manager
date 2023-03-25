@@ -298,6 +298,7 @@ textarea:focus-visible{
     padding: 10px;
     max-height: 200px;
     overflow: scroll;
+    white-space: pre-wrap;
 }
 
 h3{
@@ -334,4 +335,9 @@ thead tr {
 th {
     border-right: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
+}
+
+.code{
+    height: 400px;
+    width: 600px;
 }

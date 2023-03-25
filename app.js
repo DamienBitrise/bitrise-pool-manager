@@ -73,8 +73,36 @@ function newPool(){
     document.getElementById('desiredReplicas').value = 1;
     document.getElementById('rollingUpdateMaxUnavailablePercentage').value = 50;
     document.getElementById('rebootIntervalMinutes').value = 60;
-    document.getElementById('warmupScript').value = 'echo "Warm Up Script"';
-    document.getElementById('startupScript').value = 'echo "Start Up Script"';
+    document.getElementById('warmupScript').value = 
+`echo "Warm Up Script"
+
+echo "Downloading from https://github.com/actions/runner/releases/download/v2.303.0/actions-runner-osx-arm64-2.303.0.tar.gz"
+
+curl -o actions-runner-osx-arm64-2.303.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.303.0/actions-runner-osx-arm64-2.303.0.tar.gz
+
+echo "ls -la"
+
+ls -la
+
+echo "Extract the installer"
+
+tar xzf ./actions-runner-osx-arm64-2.303.0.tar.gz
+`;
+    document.getElementById('startupScript').value = 
+`echo "Start Up Script"
+
+echo "ls -la"
+
+ls -la
+
+echo "Initialize GitHub Actions Runner"
+
+./config.sh --url https://github.com/DamienBitrise/Bitrise-iOS-Sample --token AOQTTKP4II36KC6BQPF64MDED4P62
+
+echo "Last step, run it!"
+
+./run.sh
+`;
     document.getElementById('useLocalCacheDisk').value = 'false';
     document.getElementById('metalEnabled').value = 'true';
 
@@ -223,6 +251,16 @@ async function showPool(id){
 async function showMachine(id){
     hideAll();
     let machine = machines.machines.find((machine_type)=>machine_type.id==id)
+    if(!machine){
+        alert('Machine no longer exists reloading...');
+        pools = await loadPools();
+        buildTree({
+            images: images.images,
+            machine_types: machine_types.machineTypes,
+            machines: machines.machines,
+            pools: pools.pools
+        })
+    }
     document.getElementById('machine_name').innerHTML = '(' + machine.id + ')';
 
     document.getElementById('machine_details').innerHTML = JSON.stringify(machine, null, 2);
@@ -251,29 +289,23 @@ async function showMachine(id){
         
         function appendChunks(result) {
             var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
-            console.log('got chunk of', chunk.length, 'bytes')
             let json = JSON.parse(chunk);
-            let formatted = json.result.logContent.replace('\n', '<br>')
-            text += formatted;
-            main_stdout.innerHTML += formatted;
-            console.log('text so far is', text.length, 'bytes\n', text);
-            if (result.done) {
-                console.log('returning')
-                return text;
+            if(json.error){
+                main_stdout.innerHTML = json.error.message;
             } else {
-                console.log('recursing')
-                return readChunk();
+                let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
+                text += formatted;
+                main_stdout.innerHTML += formatted;
+                if (result.done) {
+                    console.log('returning')
+                    return text;
+                } else {
+                    console.log('recursing')
+                    return readChunk();
+                }
             }
         }
     });
-
-            // if(chunk.message){
-            //     main_stdout.innerHTML = chunk.message;
-            // } else if(chunk.error){
-            //     main_stdout.innerHTML = chunk.error.message;
-            // } else {
-            //     main_stdout.innerHTML = chunk;
-            // }
     loadLogs(machine.id, STAGES.STAGE_TYPE_WARMUP, TYPES.LOG_TYPE_STDERR, (response)=>{
         main_stderr.innerHTML = '';
         var text = '';
@@ -288,31 +320,23 @@ async function showMachine(id){
         
         function appendChunks(result) {
             var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
-            console.log('got chunk of', chunk.length, 'bytes')
             let json = JSON.parse(chunk);
-            let formatted = json.result.logContent.replace('\n', '<br>')
-            text += formatted;
-            main_stderr.innerHTML += formatted;
-            console.log('text so far is', text.length, 'bytes\n', text);
-            if (result.done) {
-                console.log('returning')
-                return text;
+            if(json.error){
+                main_stderr.innerHTML = json.error.message;
             } else {
-                console.log('recursing')
-                return readChunk();
+                let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
+                text += formatted;
+                main_stderr.innerHTML += formatted;
+                if (result.done) {
+                    console.log('returning')
+                    return text;
+                } else {
+                    console.log('recursing')
+                    return readChunk();
+                }
             }
         }
     })
-    
-    // (chunk)=>{
-    //     if(chunk.message){
-    //         main_stderr.innerHTML = chunk.message;
-    //     } else if(chunk.error){
-    //         main_stderr.innerHTML = chunk.error.message;
-    //     } else {
-    //         main_stderr.innerHTML = chunk;
-    //     }
-    // });
     loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDOUT, (response)=>{
         warmup_stdout.innerHTML = '';
         var text = '';
@@ -327,38 +351,24 @@ async function showMachine(id){
         
         function appendChunks(result) {
             var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
-            console.log('got chunk of', chunk.length, 'bytes')
             let json = JSON.parse(chunk);
-            let formatted = json.result.logContent.replace('\n', '<br>')
-            text += formatted;
-            warmup_stdout.innerHTML += formatted;
-            // if(chunk.message){
-            //     main_stdout.innerHTML = chunk.message;
-            // } else if(chunk.error){
-            //     main_stdout.innerHTML = chunk.error.message;
-            // } else {
-            //     main_stdout.innerHTML = chunk;
-            // }
-            console.log('text so far is', text.length, 'bytes\n', text);
-            if (result.done) {
-                console.log('returning')
-                return text;
+            if(json.error){
+                warmup_stdout.innerHTML = json.error.message;
             } else {
-                console.log('recursing')
-                return readChunk();
+                let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
+                text += formatted;
+                warmup_stdout.innerHTML += formatted;
+                if (result.done) {
+                    console.log('returning')
+                    return text;
+                } else {
+                    console.log('recursing')
+                    return readChunk();
+                }
             }
         }
     })
     
-    // (chunk)=>{
-    //     if(chunk.message){
-    //         warmup_stdout.innerHTML = chunk.message;
-    //     } else if(chunk.error){
-    //         warmup_stdout.innerHTML = chunk.error.message;
-    //     } else {
-    //         warmup_stdout.innerHTML = chunk;
-    //     }
-    // });
     loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDERR, (response)=>{
         warmup_stderr.innerHTML = '';
         var text = '';
@@ -373,32 +383,24 @@ async function showMachine(id){
         
         function appendChunks(result) {
             var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
-            console.log('got chunk of', chunk.length, 'bytes')
             let json = JSON.parse(chunk);
-            let formatted = json.result.logContent.replace('\n', '<br>')
-            text += formatted;
-            warmup_stderr.innerHTML += formatted;
-
-            console.log('text so far is', text.length, 'bytes\n', text);
-            if (result.done) {
-                console.log('returning')
-                return text;
+            if(json.error){
+                warmup_stderr.innerHTML = json.error.message;
             } else {
-                console.log('recursing')
-                return readChunk();
+                let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
+                text += formatted;
+                warmup_stderr.innerHTML += formatted;
+
+                if (result.done) {
+                    console.log('returning')
+                    return text;
+                } else {
+                    console.log('recursing')
+                    return readChunk();
+                }
             }
         }
     })
-    
-    // (chunk)=>{
-    //     if(chunk.message){
-    //         warmup_stderr.innerHTML = chunk.message;
-    //     } else if(chunk.error){
-    //         warmup_stderr.innerHTML = chunk.error.message;
-    //     } else {
-    //         warmup_stderr.innerHTML = chunk;
-    //     }
-    // });
 }
 
 function showAPI(){
@@ -441,6 +443,13 @@ async function savePool(id){
             "metalEnabled": metalEnabled == 'true' ? true : false
         });
         pools = await loadPools();
+
+        buildTree({
+            images: images.images,
+            machine_types: machine_types.machineTypes,
+            machines: machines.machines,
+            pools: pools.pools
+        })
     } else {
         let pool_created = await createPool({
             "desiredReplicas": parseInt(desiredReplicas),
@@ -455,6 +464,13 @@ async function savePool(id){
             "metalEnabled": metalEnabled == 'true' ? true : false
         });
         pools = await loadPools();
+
+        buildTree({
+            images: images.images,
+            machine_types: machine_types.machineTypes,
+            machines: machines.machines,
+            pools: pools.pools
+        })
     }
     buildTree({
         images: images.images,
