@@ -1,5 +1,15 @@
 let api_key = document.getElementById("api_key").value;
 let orgSlug = document.getElementById("org_slug").value;
+
+if(!orgSlug){
+    let localStorageSlug = window.localStorage.getItem('orgSlug');
+    if(localStorageSlug){
+        orgSlug = localStorageSlug;
+        document.getElementById("org_slug").value = orgSlug;
+    }
+} else {
+    window.localStorage.setItem('orgSlug', orgSlug)
+}
 const BASE_URL = 'https://api.bitrise.io/v0.1';
 let pools = null;
 let images = null;
@@ -21,7 +31,7 @@ const TYPES = {
 function buildTree(data){
     let root = document.getElementById('tree_root');
     root.innerHTML = '';
-    buildNestedNode('Pools', 4, root, data.pools, 'id', 'machineTypeId', 'showPools');
+    buildNestedNode('Pools', 4, root, data.pools, 'showMachine');
     buildNode('Virtual Machines', 3, root, data.machines, 'id', '', 'showVirtualMachines', 'showMachine');
     buildNode('Images', 1, root, data.images, 'stack', '', 'showImages');
     buildNode('Machine Types', 2, root, data.machine_types, 'name', '', 'showMachines');
@@ -55,7 +65,7 @@ function newPool(){
     document.getElementById('pool_save').onclick = async function() { 
         let success = await savePool(); 
         if(success){
-            await loadPools();
+            pools = await loadPools();
             showPools();
         }
     };
@@ -110,7 +120,7 @@ function editPool(id){
     document.getElementById('pool_save').onclick = async function() { 
         let success = await savePool(id); 
         if(success){
-            await loadPools();
+            pools = await loadPools();
             showPools();
         }
     };
@@ -118,8 +128,8 @@ function editPool(id){
     document.getElementById('desiredReplicas').value = pool["desiredReplicas"];
     document.getElementById('rollingUpdateMaxUnavailablePercentage').value = pool["rollingUpdateMaxUnavailablePercentage"];
     document.getElementById('rebootIntervalMinutes').value = pool["rebootIntervalMinutes"];
-    document.getElementById('warmupScript').value = pool["warmupScript"];
-    document.getElementById('startupScript').value = pool["startupScript"];
+    document.getElementById('warmupScript').value = atob(pool["warmupScript"]);
+    document.getElementById('startupScript').value = atob(pool["startupScript"]);
     document.getElementById('useLocalCacheDisk').value = pool["useLocalCacheDisk"];
     document.getElementById('metalEnabled').value = pool["metalEnabled"];
 
@@ -191,7 +201,7 @@ async function showPool(id){
     document.getElementById('pool_save').onclick = async function() { 
         let success = await savePool(id); 
         if(success){
-            await loadPools();
+            pools = await loadPools();
             showPools();
         }
     };
@@ -439,8 +449,10 @@ function buildTable(tableElm, array, type){
 function connect(hideError){
     api_key = document.getElementById("api_key").value;
     orgSlug = document.getElementById("org_slug").value;
+    
     if(api_key && orgSlug){
         loadData();
+        window.localStorage.setItem('orgSlug', orgSlug)
     } else if(!hideError) {
         alert('Cannot connect without an Org Slug and Bitrise API Key!');
     }

@@ -132,7 +132,7 @@ async function loadMachineTypes(){
 
 async function loadMachines(){
     // Machines
-    let machines_path = `/platform/organization/${orgSlug}/machines`;
+    let machines_path = `/platform/organization/${orgSlug}/machines?includeTerminated=false&includeRemoteAccess=false`;
     let machines = await get(machines_path);
     console.log('GET Machines: ', machines);
     if(USE_DEMO_DATA){
@@ -175,7 +175,7 @@ async function createPool(pool){
 
 async function loadPools(){
     // Pools GET
-    let pools_path = `/platform/organization/${orgSlug}/pools`;
+    let pools_path = `/platform/organization/${orgSlug}/pools?includeMachines=true&includeDeleted=false&includeScripts=true&includeTerminatedMachines=false&includeRemoteAccess=false`;
     let pools = await get(pools_path);
     console.log('GET Pools: ', pools);
     if(USE_DEMO_DATA){
@@ -366,10 +366,21 @@ async function pollAPI(){
         dot.style.color = green1;
         text.style.color = green1;
     }
-    await loadPools();
+    // let poolLength = pools.pools.length;
+    // let machineLength = machines.machineslength;
+    pools = await loadPools();
+    machines = await loadMachines();
+    // if(poolLength != pools.pools.length || machineLength != machines.machines.length){
+    //     buildTree({
+    //         images: images.images,
+    //         machine_types: machine_types.machineTypes,
+    //         machines: machines.machines,
+    //         pools: pools.pools
+    //     })
+    // }
 }
 let pollingTimeout = null;
-function runAgain(){
+async function runAgain(){
     pollingTimeout = setTimeout(async ()=>{
         await pollAPI();
         runAgain()

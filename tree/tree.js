@@ -1,3 +1,4 @@
+let tree_state = {};
 /**
   Toggles the necessary aria- attributes' values on the elements
   to handle showing and hiding them.
@@ -21,6 +22,7 @@ function toggleElement(element, show) {
     listTreeToggle.addEventListener('click', function(event) {
       event.preventDefault();
       var expand = this.getAttribute('aria-expanded') === 'true' ? false : true;
+      tree_state[event.target.id] = expand;
       toggleElement(listTreeToggle, expand);
     });
   }
@@ -30,23 +32,24 @@ function toggleElement(element, show) {
     let childHTML = '';
     children.forEach((child)=>{
         let actionCmd = name == 'Virtual Machines' ? action2 + '(\'' + child.id + '\')' : '';
-        childHTML += '<li class="p-list-tree__item '+(name == 'Virtual Machines' ? 'clickable' : '')+'" role="treeitem" onclick="'+actionCmd+'">' + child[attribute] + (attribute2 ? ' - ' + child[attribute2] : '') +'</li>';
+        let suffix = name == 'Virtual Machines' ? ' - ' + child.status.substring(15) : '';
+        childHTML += '<li id="node_'+child.id+'" class="p-list-tree__item '+(name == 'Virtual Machines' ? 'clickable' : '')+'" role="treeitem" onclick="'+actionCmd+'">' + child[attribute] + (attribute2 ? ' - ' + child[attribute2] : '') + suffix +'</li>';
     })
     let html = `
     <li class="p-list-tree__item p-list-tree__item--group" role="treeitem">
       <span>
-        <button class="p-list-tree__toggle" id="sub-${id}-btn" aria-controls="sub-${id}" aria-expanded="${name == 'Images' || name =='Machine Types' ? 'false' : 'true'}" onclick="${action}()">&nbsp;</button>
+        <button class="p-list-tree__toggle" id="sub-${id}-btn" aria-controls="sub-${id}" aria-expanded="${tree_state[id] == null ? name == 'Images' || name =='Machine Types' ? 'false' : 'true' : tree_state[id]}" onclick="${action}()">&nbsp;</button>
       
         <span class="folder" onclick="${action}()">${name}</span>
       </span>
-      <ul class="p-list-tree" role="group" id="sub-${id}" aria-hidden="${name == 'Images' || name =='Machine Types' ? 'true' : 'false'}" aria-labelledby="sub-${id}-btn">
+      <ul class="p-list-tree" role="group" id="sub-${id}" aria-hidden="${tree_state[id] == null ? name == 'Images' || name =='Machine Types' ? 'true' : 'false' : !tree_state[id]}" aria-labelledby="sub-${id}-btn">
         ${childHTML}
       </ul>
     </li>`;
     parent.innerHTML += html;
 }
 
-function buildNestedNode(name, id, parent, pools){
+function buildNestedNode(name, id, parent, pools, action){
     let outerHTML = `<li class="p-list-tree__item p-list-tree__item--group" role="treeitem">
         <button class="p-list-tree__toggle" id="sub-${id}-btn" aria-controls="sub-${id}" aria-expanded="true">&nbsp;</button>
         <span class="folder" onclick="showPools()">${name}</span>
@@ -54,7 +57,8 @@ function buildNestedNode(name, id, parent, pools){
     pools.forEach((pool, index)=>{
         let childHTML = '';
         pool.machines.forEach((machine)=>{
-            childHTML += '<li class="p-list-tree__item" role="treeitem">' +  machine.id + ' - ' + machine.status.substring(15) +'</li>';
+            let actionCmd = action + '(\'' + machine.id + '\')';
+            childHTML += '<li class="p-list-tree__item clickable" role="treeitem" onclick="'+actionCmd+'">' +  machine.id + ' - ' + machine.status.substring(15) +'</li>';
         })
 
 
@@ -64,9 +68,9 @@ function buildNestedNode(name, id, parent, pools){
         let nameStr = image.stack.replace('osx-', '') + ' - ' + machineType.name.replace('g2-', '') + '(' + pool.machines.length + ')';
         let html = `
        <li class="p-list-tree__item p-list-tree__item--group" role="treeitem">
-                <button class="p-list-tree__toggle" id="sub-${id+index+1}-btn" aria-controls="sub-${id+index+1}" aria-expanded="false" >&nbsp;</button>
+                <button class="p-list-tree__toggle" id="sub-${id+index+1}-btn" aria-controls="sub-${id+index+1}" aria-expanded="${tree_state[(id+index+1)] == null ? true : tree_state[(id+index+1)]}" >&nbsp;</button>
                 <span class="folder" onclick="showPool('${pool.id}')">${nameStr}</span>
-                <ul class="p-list-tree" role="group" id="sub-${id+index+1}" aria-hidden="true" aria-labelledby="sub-${id+index+1}-btn">
+                <ul class="p-list-tree" role="group" id="sub-${id+index+1}" aria-hidden="${tree_state[(id+index+1)] == null ? false : tree_state[(id+index+1)]}" aria-labelledby="sub-${id+index+1}-btn">
                     ${childHTML}
                 </ul>
                 </li>`;
