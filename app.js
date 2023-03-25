@@ -407,10 +407,6 @@ function buildTable(tableElm, array, type){
         cell.innerHTML = '<input style="cursor: pointer;background-color: #e12e2e; color: #ddd;" class="small_input" type="button" onclick="deletePool(\''+element.id+'\')" value="Delete"></input>';
         row.appendChild(cell);
       } else if (type == 'machine'){
-        var header2 = document.createElement('th');
-        header2.title= 'Delete';
-        header2.innerText = 'Delete';
-        table.getElementsByTagName('tr')[0].appendChild(header2);
 
         var cell = document.createElement('td');
         cell.innerHTML = '<input style="cursor: pointer;background-color: #e12e2e; color: #ddd;" class="small_input" type="button" onclick="deleteMachine(\''+element.id+'\')" value="Delete"></input>';
@@ -427,6 +423,11 @@ function buildTable(tableElm, array, type){
         header.innerText = 'Edit';
         thead.getElementsByTagName('tr')[0].appendChild(header);
 
+        var header2 = document.createElement('th');
+        header2.title= 'Delete';
+        header2.innerText = 'Delete';
+        thead.getElementsByTagName('tr')[0].appendChild(header2);
+    } else if (type == 'machine'){
         var header2 = document.createElement('th');
         header2.title= 'Delete';
         header2.innerText = 'Delete';
