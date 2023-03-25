@@ -70,7 +70,7 @@ label {
     margin-bottom: 5px;
 }
 
-input[type="text"], input[type="number"], select {
+input[type="text"], input[type="password"], input[type="number"], select {
     background-color: #000;
     border: none;
     color: #ddd;
@@ -188,7 +188,7 @@ tbody tr:nth-child(even) {background-color: #525252;}
 }
 
 .large_input {
-    width: 750px !important;
+    width: 500px !important;
     margin-bottom: 0px;
 }
 
@@ -255,7 +255,26 @@ textarea:focus{
 [type=text]:focus{
     background-color: #000;
 }
+[type=text]:focus-visible{
+    outline: 1px solid #1c5186;
+    outline-offset: -1px;
+}
 
+[type=password]:hover{
+    background-color: #000;
+}
+[type=password]:focus{
+    background-color: #000;
+}
+[type=password]:focus-visible{
+    outline: 1px solid #1c5186;
+    outline-offset: -1px;
+}
+
+[type=number]:focus-visible{
+    outline: 1px solid #1c5186;
+    outline-offset: -1px;
+}
 [type=number]:hover{
     background-color: #000;
 }
@@ -277,14 +296,7 @@ select:focus-visible{
     outline-offset: -1px;
 }
 
-[type=text]:focus-visible{
-    outline: 1px solid #1c5186;
-    outline-offset: -1px;
-}
-[type=number]:focus-visible{
-    outline: 1px solid #1c5186;
-    outline-offset: -1px;
-}
+
 textarea:focus-visible{
     outline: 1px solid #1c5186;
     outline-offset: -1px;

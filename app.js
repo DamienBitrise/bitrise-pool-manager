@@ -114,7 +114,7 @@ echo "ls -la"
 ls -la
 
 echo "Initialize GitHub Actions Runner"
-./config.sh --url https://github.com/DamienBitrise/Bitrise-iOS-Sample --token AOQTTKP4II36KC6BQPF64MDED4P62
+./config.sh --url https://github.com/DamienBitrise/Bitrise-iOS-Sample --token <TOKEN>
 
 echo "Last step, run it!"
 ./run.sh
