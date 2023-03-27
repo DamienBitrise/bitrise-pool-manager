@@ -1,6 +1,7 @@
 let api_key = document.getElementById("api_key").value;
 let orgSlug = document.getElementById("org_slug").value;
-
+let connectedMainStdOutLogs = false;
+let connectedMainStdErrLogs = false;
 if(!orgSlug){
     let localStorageSlug = window.localStorage.getItem('orgSlug');
     if(localStorageSlug){
@@ -73,6 +74,64 @@ function newPool(){
     document.getElementById('desiredReplicas').value = 1;
     document.getElementById('rollingUpdateMaxUnavailablePercentage').value = 50;
     document.getElementById('rebootIntervalMinutes').value = 60;
+    document.getElementById('useLocalCacheDisk').value = 'false';
+    document.getElementById('metalEnabled').value = 'true';
+
+    loadGitHubActionsScripts();
+    // loadGitLabRunnerScripts();
+
+    let html = '';
+    images.images.forEach((image)=>{
+        html += '<option value="'+image.id+'" '+(pool["imageId"] == image.stack ? 'selected' : '')+'>'+image.stack+'</option>';
+    })
+    document.getElementById('imageId').innerHTML = html;
+
+    html = '';
+    machine_types.machineTypes.forEach((machine_type)=>{
+        html += '<option value="'+machine_type.id+'" '+(pool["machineTypeId"] == machine_type.name ? 'selected' : '')+'>'+machine_type.name+'</option>';
+    })
+    document.getElementById('machineTypeId').innerHTML = html;
+
+    document.getElementById('edit_pool_div').style.display = '';
+}
+
+function loadGitLabRunnerScripts(){
+    document.getElementById('warmupScript').value = 
+`echo "Warm Up Script"
+
+echo "cd /Users/vagrant/git"
+cd /Users/vagrant/git
+
+sudo curl --output /usr/local/bin/gitlab-runner "https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-darwin-arm64"
+
+sudo chmod +x /usr/local/bin/gitlab-runner
+
+echo "ls -la"
+ls -la
+
+echo "gitlab-runner install"
+
+/usr/local/bin/gitlab-runner install`;
+
+    document.getElementById('startupScript').value = 
+`echo "Start Up Script"
+
+echo "cd /Users/vagrant/git"
+cd /Users/vagrant/git
+
+echo "ls -la"
+ls -la
+
+echo "gitlab-runner start"
+
+/usr/local/bin/gitlab-runner start
+
+echo "Running... Sleep 999"
+
+sleep 9999`;
+}
+
+function loadGitHubActionsScripts(){
     document.getElementById('warmupScript').value = 
 `echo "Warm Up Script"
 
@@ -119,22 +178,6 @@ echo "Initialize GitHub Actions Runner"
 echo "Last step, run it!"
 ./run.sh
 `;
-    document.getElementById('useLocalCacheDisk').value = 'false';
-    document.getElementById('metalEnabled').value = 'true';
-
-    let html = '';
-    images.images.forEach((image)=>{
-        html += '<option value="'+image.id+'" '+(pool["imageId"] == image.stack ? 'selected' : '')+'>'+image.stack+'</option>';
-    })
-    document.getElementById('imageId').innerHTML = html;
-
-    html = '';
-    machine_types.machineTypes.forEach((machine_type)=>{
-        html += '<option value="'+machine_type.id+'" '+(pool["machineTypeId"] == machine_type.name ? 'selected' : '')+'>'+machine_type.name+'</option>';
-    })
-    document.getElementById('machineTypeId').innerHTML = html;
-
-    document.getElementById('edit_pool_div').style.display = '';
 }
 
 function showImages(){
@@ -276,19 +319,17 @@ async function showMachine(id){
             machines: machines.machines,
             pools: pools.pools
         })
+        return;
     }
     document.getElementById('machine_name').innerHTML = '(' + machine.id + ')';
 
     document.getElementById('machine_details').innerHTML = JSON.stringify(machine, null, 2);
 
     document.getElementById('machine_div').style.display = '';
-
-    let main_stdout = document.getElementById('machine_logs_main_stdout');
-    let main_stderr = document.getElementById('machine_logs_main_stderr');
+    
     let warmup_stdout = document.getElementById('machine_logs_warmup_stdout');
     let warmup_stderr = document.getElementById('machine_logs_warmup_stderr');
-    main_stdout.innerHTML = 'Loading...';
-    main_stderr.innerHTML = 'Loading...';
+
     warmup_stdout.innerHTML = 'Loading...';
     warmup_stderr.innerHTML = 'Loading...';
     loadLogs(machine.id, STAGES.STAGE_TYPE_WARMUP, TYPES.LOG_TYPE_STDOUT, (response)=>{
@@ -313,10 +354,10 @@ async function showMachine(id){
                 text += formatted;
                 warmup_stdout.innerHTML += formatted;
                 if (result.done) {
-                    console.log('returning')
+                    // console.log('returning')
                     return text;
                 } else {
-                    console.log('recursing')
+                    // console.log('recursing')
                     return readChunk();
                 }
             }
@@ -344,47 +385,31 @@ async function showMachine(id){
                 text += formatted;
                 warmup_stderr.innerHTML += formatted;
                 if (result.done) {
-                    console.log('returning')
+                    // console.log('returning')
                     return text;
                 } else {
-                    console.log('recursing')
-                    return readChunk();
-                }
-            }
-        }
-    })
-    loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDOUT, (response)=>{
-        main_stdout.innerHTML = '';
-        var text = '';
-        var reader = response.body.getReader()
-        var decoder = new TextDecoder();
-        
-        return readChunk();
-        
-        function readChunk() {
-            return reader.read().then(appendChunks);
-        }
-        
-        function appendChunks(result) {
-            var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
-            let json = JSON.parse(chunk);
-            if(json.error){
-                main_stdout.innerHTML = json.error.message;
-            } else {
-                let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
-                text += formatted;
-                main_stdout.innerHTML += formatted;
-                if (result.done) {
-                    console.log('returning')
-                    return text;
-                } else {
-                    console.log('recursing')
+                    // console.log('recursing')
                     return readChunk();
                 }
             }
         }
     })
     
+    setInterval(()=>{
+        if(!connectedMainStdErrLogs){
+            loadMainStdErr(machine);
+        }
+
+        if(!connectedMainStdOutLogs){
+            loadMainStdOut(machine);
+        }
+    }, 1000)
+
+}
+
+function loadMainStdErr(machine){
+    let main_stderr = document.getElementById('machine_logs_main_stderr');
+    main_stderr.innerHTML = 'Loading...';
     loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDERR, (response)=>{
         main_stderr.innerHTML = '';
         var text = '';
@@ -403,15 +428,53 @@ async function showMachine(id){
             if(json.error){
                 main_stderr.innerHTML = json.error.message;
             } else {
+                connectedMainStdErrLogs = true;
                 let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
                 text += formatted;
                 main_stderr.innerHTML += formatted;
 
                 if (result.done) {
-                    console.log('returning')
+                    // console.log('returning')
                     return text;
                 } else {
-                    console.log('recursing')
+                    // console.log('recursing')
+                    return readChunk();
+                }
+            }
+        }
+    })
+}
+
+function loadMainStdOut(machine){
+    let main_stdout = document.getElementById('machine_logs_main_stdout');
+    main_stdout.innerHTML = 'Loading...';
+    loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDOUT, (response)=>{
+        main_stdout.innerHTML = '';
+        var text = '';
+        var reader = response.body.getReader()
+        var decoder = new TextDecoder();
+        
+        return readChunk();
+        
+        function readChunk() {
+            return reader.read().then(appendChunks);
+        }
+        
+        function appendChunks(result) {
+            var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
+            let json = JSON.parse(chunk);
+            if(json.error){
+                main_stdout.innerHTML = json.error.message;
+            } else {
+                connectedMainStdOutLogs = true;
+                let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
+                text += formatted;
+                main_stdout.innerHTML += formatted;
+                if (result.done) {
+                    // console.log('returning')
+                    return text;
+                } else {
+                    // console.log('recursing')
                     return readChunk();
                 }
             }

@@ -403,6 +403,7 @@ async function pollAPI(){
 }
 let pollingTimeout = null;
 async function runAgain(){
+    clearTimeout(pollingTimeout);
     pollingTimeout = setTimeout(async ()=>{
         await pollAPI();
         runAgain()
@@ -434,10 +435,10 @@ function onChunkedResponseComplete(result) {
       text += chunk;
       console.log('text so far is', text.length, 'bytes\n', text);
       if (result.done) {
-        console.log('returning')
+        // console.log('returning')
         return text;
       } else {
-        console.log('recursing')
+        // console.log('recursing')
         return readChunk();
       }
     }
