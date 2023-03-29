@@ -211,6 +211,7 @@ async function createPool(pool){
     let pools_path = `/platform/organization/${orgSlug}/pools`;
     let pool_created = await post(pools_path, pool);
     // console.log('POST Pool: ', pool_created);
+    setTimeout(()=>{loadData()}, 1000);
     return pool_created;
 }
 
@@ -246,6 +247,7 @@ async function deletePool(poolId){
         machines: machines.machines,
         pools: pools.pools
     })
+    showPools();
     return pool_deleted;
 }
 

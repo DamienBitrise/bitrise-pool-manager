@@ -77,8 +77,9 @@ function newPool(){
     document.getElementById('useLocalCacheDisk').value = 'false';
     document.getElementById('metalEnabled').value = 'true';
 
-    loadGitHubActionsScripts();
+    //loadGitHubActionsScripts();
     // loadGitLabRunnerScripts();
+    loadBuildKiteScripts();
 
     let html = '';
     images.images.forEach((image)=>{
@@ -173,11 +174,59 @@ echo "ls -la"
 ls -la
 
 echo "Initialize GitHub Actions Runner"
-./config.sh --url https://github.com/DamienBitrise/Bitrise-iOS-Sample --token <TOKEN>
+./config.sh --url <REPO URL> --token <TOKEN>
 
 echo "Last step, run it!"
 ./run.sh
 `;
+}
+
+function loadBuildKiteScripts(){
+    document.getElementById('warmupScript').value = 
+`echo "Warm Up Script"
+
+echo "cd /Users/vagrant/git"
+cd /Users/vagrant/git
+
+echo "ls -la"
+ls -la
+
+echo "Installing Homebrew"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+echo "Adding brew to PATH"
+export PATH=/opt/homebrew/bin:$PATH
+
+echo "brew tap buildkite/buildkite && brew install buildkite-agent"
+brew tap buildkite/buildkite && brew install buildkite-agent
+`;
+
+    document.getElementById('startupScript').value = 
+`echo "Start Up Script"
+
+echo "cd /Users/vagrant/git"
+cd /Users/vagrant/git
+
+echo "ls -la"
+ls -la
+
+echo "Adding brew to PATH"
+export PATH=/opt/homebrew/bin:$PATH
+
+echo "Starting BuildKite Agent"
+buildkite-agent start --token <TOKEN>
+`;
+}
+
+function updateTemplate(){
+    let type = document.getElementById('template').value;
+    if(type == 'buildkite'){
+        loadBuildKiteScripts();
+    } else if(type == 'github'){
+        loadGitHubActionsScripts();
+    } else if(type == 'gitlab'){
+        loadGitLabRunnerScripts();
+    }
 }
 
 function showImages(){

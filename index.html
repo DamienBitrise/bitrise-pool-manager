@@ -125,7 +125,17 @@
       </div>
 
       <div id="edit_pool_div" style="display: none;">
-        <h2>Pool <span id="pool_id"></span></h2>
+        <h2>Pool 
+          <span id="pool_id"></span>
+          <span style="float: right;margin-right: 20px;">
+            <label style="display: inline;font-size: 20px;" for="useLocalCacheDisk">Agent Template</label>
+            <select id="template" onchange="updateTemplate()" style="display: inline;">
+              <option value="buildkite" selected>BuildKite Agent</option>
+              <option value="github">GitHub Actions Agent</option>
+              <option value="gitlab" selected>GitLab Agent</option>
+            </select>
+          </span>
+        </h2>
         <div class="form_div">
             <div class="my_row">
               <div class="my_column" style="padding-right: 20px;">
