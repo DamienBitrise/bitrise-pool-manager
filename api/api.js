@@ -154,7 +154,7 @@ async function loadMachineTypes(){
 
 async function loadMachines(){
     // Machines
-    let machines_path = `/platform/organization/${orgSlug}/machines?includeTerminated=false&includeRemoteAccess=false`;
+    let machines_path = `/platform/organization/${orgSlug}/machines?includeTerminated=false&includeRemoteAccess=true`;
     let machines = await get(machines_path);
     // console.log('GET Machines: ', machines);
     if(USE_DEMO_DATA){
@@ -177,6 +177,25 @@ async function deleteMachine(machineId){
         pools: pools.pools
     })
     return machine_deleted;
+}
+
+async function deleteRemoteAccess(machineId){
+    // Remote Access DELETE
+    let remove_access_path = `/platform/organization/${orgSlug}/machines/${machineId}/remote_access`;
+    let remote_access_deleted = await del(remove_access_path);
+    machines = await loadMachines();
+    showMachine(machineId);
+    return remote_access_deleted;
+}
+
+async function remoteAccess(machineId){
+    // Remote Access POST
+    let remote_access_path = `/platform/organization/${orgSlug}/machines/${machineId}/remote_access`;
+    let remote_access_created = await post(remote_access_path);
+    machines = await loadMachines();
+    showMachine(machineId);
+    // console.log('POST Pool: ', remote_access_created);
+    return remote_access_created;
 }
 
 async function loadLogs(machineId, stage, type, callback){

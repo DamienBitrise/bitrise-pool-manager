@@ -652,18 +652,28 @@ function buildTable(tableElm, array, type){
 
       if(type == 'pool'){
 
-        var cell = document.createElement('td');
-        cell.innerHTML = '<input style="cursor: pointer;" class="small_input" type="button" onclick="editPool(\''+element.id+'\')" value="Edit"></input>';
-        row.appendChild(cell);
+        var cell1 = document.createElement('td');
+        cell1.innerHTML = '<input style="cursor: pointer;" class="small_input" type="button" onclick="editPool(\''+element.id+'\')" value="Edit"></input>';
+        row.appendChild(cell1);
 
-        var cell = document.createElement('td');
-        cell.innerHTML = '<input style="cursor: pointer;background-color: #e12e2e; color: #ddd;" class="small_input" type="button" onclick="deletePool(\''+element.id+'\')" value="Delete"></input>';
-        row.appendChild(cell);
+        var cell2 = document.createElement('td');
+        cell2.innerHTML = '<input style="cursor: pointer;background-color: #e12e2e; color: #ddd;" class="small_input" type="button" onclick="deletePool(\''+element.id+'\')" value="Delete"></input>';
+        row.appendChild(cell2);
       } else if (type == 'machine'){
+        if(element.remoteAccess && element.remoteAccess.sshCommand != ''){
+            var cell2 = document.createElement('td');
+            cell2.innerHTML = '<input style="cursor: pointer;background-color: #e12e2e; color: #ddd;" class="small_input" type="button" onclick="deleteRemoteAccess(\''+element.id+'\')" value="Disable"></input>';
+            row.appendChild(cell2);
+        } else {
+            var cell2 = document.createElement('td');
+            cell2.innerHTML = '<input style="cursor: pointer;" class="small_input" type="button" onclick="remoteAccess(\''+element.id+'\')" value="Enable"></input>';
+            row.appendChild(cell2);
+        }
 
-        var cell = document.createElement('td');
-        cell.innerHTML = '<input style="cursor: pointer;background-color: #e12e2e; color: #ddd;" class="small_input" type="button" onclick="deleteMachine(\''+element.id+'\')" value="Delete"></input>';
-        row.appendChild(cell);
+        var cell1 = document.createElement('td');
+        cell1.innerHTML = '<input style="cursor: pointer;background-color: #e12e2e; color: #ddd;" class="small_input" type="button" onclick="deleteMachine(\''+element.id+'\')" value="Delete"></input>';
+        row.appendChild(cell1);
+        
       }
 
       // Add the row to the tbody
@@ -681,6 +691,11 @@ function buildTable(tableElm, array, type){
         header2.innerText = 'Delete';
         thead.getElementsByTagName('tr')[0].appendChild(header2);
     } else if (type == 'machine'){
+        var header = document.createElement('th');
+        header.title= 'Remote Access';
+        header.innerText = 'Remote Access';
+        thead.getElementsByTagName('tr')[0].appendChild(header);
+
         var header2 = document.createElement('th');
         header2.title= 'Delete';
         header2.innerText = 'Delete';
