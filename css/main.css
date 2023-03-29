@@ -103,7 +103,7 @@ textarea {
     background-color: #000;
     border: none;
     color: #ddd;
-    font-family: Arial, sans-serif;
+    font-family: monospace;
     font-size: 14px;
     padding: 10px;
     resize: none;
