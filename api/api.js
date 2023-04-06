@@ -19,7 +19,7 @@ async function get(path){
     }
 }
 
-async function getChunks(path, callback){
+async function getChunks(path, processChunkedResponse, onChunkedResponseError, onComplete){
     const url = new URL(BASE_URL + path);
     try {
         let params = {
@@ -30,8 +30,7 @@ async function getChunks(path, callback){
             }
         };
         fetch(url, params)
-            .then(callback)
-            .then(onChunkedResponseComplete)
+            .then((res)=>{processChunkedResponse(res, onComplete);})
             .catch(onChunkedResponseError);
     } catch (error) {
         console.log('error:', error);
@@ -198,11 +197,8 @@ async function remoteAccess(machineId){
     return remote_access_created;
 }
 
-async function loadLogs(machineId, stage, type, callback){
-    // Logs
-    let log_path = `/platform/organization/${orgSlug}/machines/${machineId}/logs/${stage}/${type}`;
-    let logs = await getChunks(log_path, callback);
-    // console.log('GET Logs: ', logs);
+async function loadLogs(log_path, processChunkedResponse, onChunkedResponseError, onComplete){
+    let logs = await getChunks(log_path, processChunkedResponse, onChunkedResponseError, onComplete);
     return logs;
 }
 
@@ -439,7 +435,7 @@ function onChunkedResponseComplete(result) {
     console.error(err)
   }
   
-  function processChunkedResponse(response) {
+  function processChunkedResponseWarmupSTDOUT(response, callback) {
     var text = '';
     var reader = response.body.getReader()
     var decoder = new TextDecoder();
@@ -452,15 +448,123 @@ function onChunkedResponseComplete(result) {
   
     function appendChunks(result) {
       var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
-      console.log('got chunk of', chunk.length, 'bytes')
       text += chunk;
-      console.log('text so far is', text.length, 'bytes\n', text);
+      let parts = text.split('{"result":');
+      parts.forEach(part => {
+          try{
+              let parsed = '{"result":' + part;
+              JSON.parse(parsed);
+              callback(parsed);
+          } catch (err) {
+              json = null;
+          }
+      });
       if (result.done) {
-        // console.log('returning')
+        callback(text);
         return text;
       } else {
-        // console.log('recursing')
         return readChunk();
       }
+    }
+  }
+
+  function processChunkedResponseWarmupSTDERR(response, callback) {
+    var text = '';
+    var reader = response.body.getReader()
+    var decoder = new TextDecoder();
+    
+    return readChunk();
+  
+    function readChunk() {
+      return reader.read().then(appendChunks);
+    }
+  
+    function appendChunks(result) {
+      var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
+      text += chunk;
+      let parts = text.split('{"result":');
+      parts.forEach(part => {
+          try{
+              let parsed = '{"result":' + part;
+              JSON.parse(parsed);
+              callback(parsed);
+          } catch (err) {
+              json = null;
+          }
+      });
+      if (result.done) {
+        callback(text);
+        return text;
+      } else {
+        return readChunk();
+      }
+    }
+  }
+
+  function processChunkedResponseMainSTDOUT(response, callback) {
+    var text = '';
+    var reader = response.body.getReader()
+    var decoder = new TextDecoder();
+    
+    return readChunk();
+  
+    function readChunk() {
+      return reader.read().then(appendChunks);
+    }
+  
+    function appendChunks(result) {
+      connectedMainStdOutLogs = true;
+      var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
+      text += chunk;
+      let parts = text.split('{"result":');
+      parts.forEach(part => {
+          try{
+              let parsed = '{"result":' + part;
+              JSON.parse(parsed);
+              callback(parsed);
+          } catch (err) {
+              json = null;
+          }
+      });
+      if (result.done) {
+        callback(text);
+        return text;
+      } else {
+        return readChunk();
+      }
+    }
+  }
+
+  function processChunkedResponseMainSTDERR(response, callback) {
+    var text = '';
+    var reader = response.body.getReader()
+    var decoder = new TextDecoder();
+    
+    return readChunk();
+  
+    function readChunk() {
+      connectedMainStdErrLogs = true;
+      return reader.read().then(appendChunks);
+    }
+  
+    function appendChunks(result) {
+        var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
+        text += chunk;
+        let parts = text.split('{"result":');
+        parts.forEach(part => {
+            try{
+                let parsed = '{"result":' + part;
+                JSON.parse(parsed);
+                callback(parsed);
+            } catch (err) {
+                json = null;
+            }
+        });
+        if (result.done) {
+            callback(text);
+            return text;
+        } else {
+            return readChunk();
+        }
     }
   }

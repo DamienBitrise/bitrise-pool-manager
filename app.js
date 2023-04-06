@@ -2,6 +2,10 @@ let api_key = document.getElementById("api_key").value;
 let orgSlug = document.getElementById("org_slug").value;
 let connectedMainStdOutLogs = false;
 let connectedMainStdErrLogs = false;
+let json_buffer_main_stdout = "";
+let json_buffer_main_stderr = "";
+let json_buffer_warmup_stdout = "";
+let json_buffer_warmup_stderr = "";
 if(!orgSlug){
     let localStorageSlug = window.localStorage.getItem('orgSlug');
     if(localStorageSlug){
@@ -350,9 +354,6 @@ async function showPool(id){
     document.getElementById('pool_details').innerHTML = JSON.stringify(pool, null, 2);
     buildTable('pool', pool.machines);
 
-    // await loadLogs();
-
-
     document.getElementById('pool_div').style.display = '';
 }
 
@@ -381,67 +382,49 @@ async function showMachine(id){
 
     warmup_stdout.innerHTML = 'Loading...';
     warmup_stderr.innerHTML = 'Loading...';
-    loadLogs(machine.id, STAGES.STAGE_TYPE_WARMUP, TYPES.LOG_TYPE_STDOUT, (response)=>{
-        warmup_stdout.innerHTML = '';
-        var text = '';
-        var reader = response.body.getReader()
-        var decoder = new TextDecoder();
-        
-        return readChunk();
-        
-        function readChunk() {
-            return reader.read().then(appendChunks);
-        }
-        
-        function appendChunks(result) {
-            var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
-            let json = JSON.parse(chunk);
-            if(json.error){
-                warmup_stdout.innerHTML = json.error.message;
-            } else {
-                let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
-                text += formatted;
-                warmup_stdout.innerHTML += formatted;
-                if (result.done) {
-                    // console.log('returning')
-                    return text;
-                } else {
-                    // console.log('recursing')
-                    return readChunk();
+
+    let log_path = `/platform/organization/${orgSlug}/machines/${machine.id}/logs/${STAGES.STAGE_TYPE_WARMUP}/${TYPES.LOG_TYPE_STDOUT}`;
+
+    warmup_stdout.innerHTML = '';
+    loadLogs(log_path, (res)=>{ 
+            processChunkedResponseWarmupSTDOUT(res, 
+                (response)=>{
+                    warmup_stdout.innerHTML = '';
+                    let json = JSON.parse(response);
+                    let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
+                    warmup_stdout.innerHTML += formatted;
                 }
-            }
-        }
+            );
+        }, 
+      (err) => {
+        console.error(err)
+      },
+      (response)=>{
+        let json = JSON.parse(response);
+        let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
+        warmup_stdout.innerHTML += formatted;
     });
-    loadLogs(machine.id, STAGES.STAGE_TYPE_WARMUP, TYPES.LOG_TYPE_STDERR, (response)=>{
-        warmup_stderr.innerHTML = '';
-        var text = '';
-        var reader = response.body.getReader()
-        var decoder = new TextDecoder();
-        
-        return readChunk();
-        
-        function readChunk() {
-            return reader.read().then(appendChunks);
-        }
-        
-        function appendChunks(result) {
-            var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
-            let json = JSON.parse(chunk);
-            if(json.error){
-                warmup_stderr.innerHTML = json.error.message;
-            } else {
-                let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
-                text += formatted;
-                warmup_stderr.innerHTML += formatted;
-                if (result.done) {
-                    // console.log('returning')
-                    return text;
-                } else {
-                    // console.log('recursing')
-                    return readChunk();
+
+    let log_path2 = `/platform/organization/${orgSlug}/machines/${machine.id}/logs/${STAGES.STAGE_TYPE_WARMUP}/${TYPES.LOG_TYPE_STDERR}`;
+
+    warmup_stderr.innerHTML = '';
+    loadLogs(log_path2, (res)=>{
+            processChunkedResponseWarmupSTDERR(res, 
+                (response)=>{
+                    warmup_stderr.innerHTML = '';
+                    let json = JSON.parse(response);
+                    let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
+                    warmup_stderr.innerHTML += formatted;
                 }
-            }
-        }
+            );
+        }, 
+        (err) => {
+            console.error(err)
+          },
+          (response)=>{
+        let json = JSON.parse(response);
+        let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
+        warmup_stderr.innerHTML += formatted;
     })
     
     setInterval(()=>{
@@ -459,75 +442,59 @@ async function showMachine(id){
 function loadMainStdErr(machine){
     let main_stderr = document.getElementById('machine_logs_main_stderr');
     main_stderr.innerHTML = 'Loading...';
-    loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDERR, (response)=>{
-        main_stderr.innerHTML = '';
-        var text = '';
-        var reader = response.body.getReader()
-        var decoder = new TextDecoder();
-        
-        return readChunk();
-        
-        function readChunk() {
-            return reader.read().then(appendChunks);
-        }
-        
-        function appendChunks(result) {
-            var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
-            let json = JSON.parse(chunk);
-            if(json.error){
-                main_stderr.innerHTML = json.error.message;
-            } else {
+
+    let log_path2 = `/platform/organization/${orgSlug}/machines/${machine.id}/logs/${STAGES.STAGE_TYPE_MAIN}/${TYPES.LOG_TYPE_STDERR}`;
+
+    main_stderr.innerHTML = '';
+    loadLogs(log_path2, (res)=>{ 
+        processChunkedResponseMainSTDERR(res, 
+            (response)=>{
+                json = JSON.parse(response);
                 connectedMainStdErrLogs = true;
                 let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
-                text += formatted;
                 main_stderr.innerHTML += formatted;
+            })
+        }, 
+        (err) => {
+            console.error(err)
+          },
+        (response)=>{
+        main_stderr.innerHTML = '';
 
-                if (result.done) {
-                    // console.log('returning')
-                    return text;
-                } else {
-                    // console.log('recursing')
-                    return readChunk();
-                }
-            }
-        }
+        json = JSON.parse(response);
+        connectedMainStdErrLogs = true;
+        let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
+
+        main_stderr.innerHTML += formatted;
     })
 }
+
 
 function loadMainStdOut(machine){
     let main_stdout = document.getElementById('machine_logs_main_stdout');
     main_stdout.innerHTML = 'Loading...';
-    loadLogs(machine.id, STAGES.STAGE_TYPE_MAIN, TYPES.LOG_TYPE_STDOUT, (response)=>{
-        main_stdout.innerHTML = '';
-        var text = '';
-        var reader = response.body.getReader()
-        var decoder = new TextDecoder();
-        
-        return readChunk();
-        
-        function readChunk() {
-            return reader.read().then(appendChunks);
-        }
-        
-        function appendChunks(result) {
-            var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
-            let json = JSON.parse(chunk);
-            if(json.error){
-                main_stdout.innerHTML = json.error.message;
-            } else {
+
+    let log_path2 = `/platform/organization/${orgSlug}/machines/${machine.id}/logs/${STAGES.STAGE_TYPE_MAIN}/${TYPES.LOG_TYPE_STDOUT}`;
+
+    main_stdout.innerHTML = '';
+    loadLogs(log_path2, (res)=>{
+        processChunkedResponseMainSTDOUT(res, (response)=>{
+                json = JSON.parse(response);
                 connectedMainStdOutLogs = true;
                 let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
-                text += formatted;
                 main_stdout.innerHTML += formatted;
-                if (result.done) {
-                    // console.log('returning')
-                    return text;
-                } else {
-                    // console.log('recursing')
-                    return readChunk();
-                }
-            }
-        }
+            })
+        }, 
+        (err) => {
+            console.error(err)
+          },
+        (response)=>{
+        main_stdout.innerHTML = '';
+
+        json = JSON.parse(response);
+        connectedMainStdOutLogs = true;
+        let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
+        main_stdout.innerHTML += formatted;
     })
 }
 
