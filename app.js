@@ -393,10 +393,11 @@ async function showMachine(id){
     loadLogs(log_path, (res)=>{ 
             processChunkedResponseWarmupSTDOUT(res, 
                 (response)=>{
-                    warmup_stdout.innerHTML = '';
                     let json = JSON.parse(response);
-                    let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
-                    warmup_stdout.innerHTML += formatted;
+                    if(json.result.logContent){
+                        let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
+                        warmup_stdout.innerHTML += formatted;
+                    }
                 }
             );
         }, 
@@ -415,10 +416,11 @@ async function showMachine(id){
     loadLogs(log_path2, (res)=>{
             processChunkedResponseWarmupSTDERR(res, 
                 (response)=>{
-                    warmup_stderr.innerHTML = '';
                     let json = JSON.parse(response);
-                    let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
-                    warmup_stderr.innerHTML += formatted;
+                    if(json.result.logContent){
+                        let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
+                        warmup_stderr.innerHTML += formatted;
+                    }
                 }
             );
         }, 
@@ -454,9 +456,11 @@ function loadMainStdErr(machine){
         processChunkedResponseMainSTDERR(res, 
             (response)=>{
                 json = JSON.parse(response);
-                connectedMainStdErrLogs = true;
-                let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
-                main_stderr.innerHTML += formatted;
+                if(json.result.logContent){
+                    connectedMainStdErrLogs = true;
+                    let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
+                    main_stderr.innerHTML += formatted;
+                }
             })
         }, 
         (err) => {
@@ -484,9 +488,11 @@ function loadMainStdOut(machine){
     loadLogs(log_path2, (res)=>{
         processChunkedResponseMainSTDOUT(res, (response)=>{
                 json = JSON.parse(response);
-                connectedMainStdOutLogs = true;
-                let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
-                main_stdout.innerHTML += formatted;
+                if(json.result.logContent){
+                    connectedMainStdOutLogs = true;
+                    let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
+                    main_stdout.innerHTML += formatted;
+                }
             })
         }, 
         (err) => {

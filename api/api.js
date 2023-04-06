@@ -450,15 +450,32 @@ function onChunkedResponseComplete(result) {
       var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
       text += chunk;
       let parts = text.split('{"result":');
-      parts.forEach(part => {
-          try{
-              let parsed = '{"result":' + part;
-              JSON.parse(parsed);
-              callback(parsed);
-          } catch (err) {
-              json = null;
-          }
+      let remainingIndecies = parts.map((part, index)=>index);
+      parts.forEach((part, index) => {
+        if(part != ''){
+            try{
+                let parsed = '{"result":' + part;
+                JSON.parse(parsed);
+                callback(parsed);
+                var index = remainingIndecies.indexOf(index);
+                if (index !== -1) {
+                    remainingIndecies.splice(index, 1);
+                }
+            } catch (err) {
+                json = null;
+            }
+        } else {
+            var index = remainingIndecies.indexOf(index);
+            if (index !== -1) {
+                remainingIndecies.splice(index, 1);
+            }
+        }
       });
+      text = '';
+      remainingIndecies.forEach((element)=>{
+        text += '{"result":' + parts[element];
+        console.log('Adding back remaining index', text);
+      })
       if (result.done) {
         callback(text);
         return text;
@@ -483,15 +500,32 @@ function onChunkedResponseComplete(result) {
       var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
       text += chunk;
       let parts = text.split('{"result":');
-      parts.forEach(part => {
-          try{
-              let parsed = '{"result":' + part;
-              JSON.parse(parsed);
-              callback(parsed);
-          } catch (err) {
-              json = null;
-          }
+      let remainingIndecies = parts.map((part, index)=>index);
+      parts.forEach((part, index) => {
+        if(part != ''){
+            try{
+                let parsed = '{"result":' + part;
+                JSON.parse(parsed);
+                callback(parsed);
+                var index = remainingIndecies.indexOf(index);
+                if (index !== -1) {
+                    remainingIndecies.splice(index, 1);
+                }
+            } catch (err) {
+                json = null;
+            }
+        } else {
+            var index = remainingIndecies.indexOf(index);
+            if (index !== -1) {
+                remainingIndecies.splice(index, 1);
+            }
+        }
       });
+      text = '';
+      remainingIndecies.forEach((element)=>{
+        text += '{"result":' + parts[element];
+        console.log('Adding back remaining index', text);
+      })
       if (result.done) {
         callback(text);
         return text;
@@ -517,15 +551,32 @@ function onChunkedResponseComplete(result) {
       var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
       text += chunk;
       let parts = text.split('{"result":');
-      parts.forEach(part => {
-          try{
-              let parsed = '{"result":' + part;
-              JSON.parse(parsed);
-              callback(parsed);
-          } catch (err) {
-              json = null;
-          }
+      let remainingIndecies = parts.map((part, index)=>index);
+      parts.forEach((part, index) => {
+        if(part != ''){
+            try{
+                let parsed = '{"result":' + part;
+                JSON.parse(parsed);
+                callback(parsed);
+                var index = remainingIndecies.indexOf(index);
+                if (index !== -1) {
+                    remainingIndecies.splice(index, 1);
+                }
+            } catch (err) {
+                json = null;
+            }
+        } else {
+            var index = remainingIndecies.indexOf(index);
+            if (index !== -1) {
+                remainingIndecies.splice(index, 1);
+            }
+        }
       });
+      text = '';
+      remainingIndecies.forEach((element)=>{
+        text += '{"result":' + parts[element];
+        console.log('Adding back remaining index', text);
+      })
       if (result.done) {
         callback(text);
         return text;
@@ -551,15 +602,32 @@ function onChunkedResponseComplete(result) {
         var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
         text += chunk;
         let parts = text.split('{"result":');
-        parts.forEach(part => {
-            try{
-                let parsed = '{"result":' + part;
-                JSON.parse(parsed);
-                callback(parsed);
-            } catch (err) {
-                json = null;
-            }
+        let remainingIndecies = parts.map((part, index)=>index);
+        parts.forEach((part, index) => {
+          if(part != ''){
+              try{
+                  let parsed = '{"result":' + part;
+                  JSON.parse(parsed);
+                  callback(parsed);
+                  var index = remainingIndecies.indexOf(index);
+                  if (index !== -1) {
+                      remainingIndecies.splice(index, 1);
+                  }
+              } catch (err) {
+                  json = null;
+              }
+          } else {
+              var index = remainingIndecies.indexOf(index);
+              if (index !== -1) {
+                  remainingIndecies.splice(index, 1);
+              }
+          }
         });
+        text = '';
+        remainingIndecies.forEach((element)=>{
+          text += '{"result":' + parts[element];
+          console.log('Adding back remaining index', text);
+        })
         if (result.done) {
             callback(text);
             return text;
