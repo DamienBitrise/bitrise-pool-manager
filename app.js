@@ -337,6 +337,10 @@ function clearUI(){
 }
 async function showPool(id){
     hideAll();
+    document.getElementById('machine_logs_warmup_stdout').innerHTML = '';
+    document.getElementById('machine_logs_warmup_stderr').innerHTML = '';
+    document.getElementById('machine_logs_main_stdout').innerHTML = '';
+    document.getElementById('machine_logs_main_stderr').innerHTML = '';
     document.getElementById('pool_edit').onclick = function() { editPool(id); };
     document.getElementById('pool_save').onclick = async function() { 
         let success = await savePool(id); 
@@ -530,8 +534,8 @@ async function savePool(id){
             "rollingUpdateMaxUnavailablePercentage": parseInt(rollingUpdateMaxUnavailablePercentage),
             // "parallelReplicasUpdatePercentage": rebootIntervalMinutes,
             "rebootIntervalMinutes": parseInt(rebootIntervalMinutes),
-            "warmupScript": btoa(warmupScript),
-            "startupScript": btoa(startupScript),
+            "warmupScript": btoa(decodeURI(encodeURIComponent(warmupScript))),
+            "startupScript": btoa(decodeURI(encodeURIComponent(startupScript))),
             "imageId": imageId,
             "machineTypeId": machineTypeId,
             "useLocalCacheDisk": useLocalCacheDisk == 'true' ? true : false,
@@ -545,8 +549,8 @@ async function savePool(id){
             "rollingUpdateMaxUnavailablePercentage": parseInt(rollingUpdateMaxUnavailablePercentage),
             // "parallelReplicasUpdatePercentage": rebootIntervalMinutes,
             "rebootIntervalMinutes": parseInt(rebootIntervalMinutes),
-            "warmupScript": btoa(warmupScript),
-            "startupScript": btoa(startupScript),
+            "warmupScript": btoa(decodeURI(encodeURIComponent(warmupScript))),
+            "startupScript": btoa(decodeURI(encodeURIComponent(startupScript))),
             "imageId": imageId,
             "machineTypeId": machineTypeId,
             "useLocalCacheDisk": useLocalCacheDisk == 'true' ? true : false,
