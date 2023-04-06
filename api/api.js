@@ -474,7 +474,7 @@ function onChunkedResponseComplete(result) {
       text = '';
       remainingIndecies.forEach((element)=>{
         text += '{"result":' + parts[element];
-        console.log('Adding back remaining index', text);
+        // console.log('Adding back remaining index', text);
       })
       if (result.done) {
         callback(text);
@@ -524,7 +524,7 @@ function onChunkedResponseComplete(result) {
       text = '';
       remainingIndecies.forEach((element)=>{
         text += '{"result":' + parts[element];
-        console.log('Adding back remaining index', text);
+        // console.log('Adding back remaining index', text);
       })
       if (result.done) {
         callback(text);
@@ -575,7 +575,7 @@ function onChunkedResponseComplete(result) {
       text = '';
       remainingIndecies.forEach((element)=>{
         text += '{"result":' + parts[element];
-        console.log('Adding back remaining index', text);
+        // console.log('Adding back remaining index', text);
       })
       if (result.done) {
         callback(text);
@@ -626,7 +626,7 @@ function onChunkedResponseComplete(result) {
         text = '';
         remainingIndecies.forEach((element)=>{
           text += '{"result":' + parts[element];
-          console.log('Adding back remaining index', text);
+        //   console.log('Adding back remaining index', text);
         })
         if (result.done) {
             callback(text);
