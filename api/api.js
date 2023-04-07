@@ -25,7 +25,7 @@ async function getChunks(path, processChunkedResponse, onChunkedResponseError, o
         let params = {
             method: 'GET',
             headers: {
-                'accept': 'application/json',
+                'accept': 'text/event-stream',
                 'Authorization': api_key,
             }
         };
@@ -547,7 +547,6 @@ function onChunkedResponseComplete(result) {
     }
   
     function appendChunks(result) {
-      connectedMainStdOutLogs = true;
       var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
       text += chunk;
       let parts = text.split('{"result":');
@@ -594,7 +593,6 @@ function onChunkedResponseComplete(result) {
     return readChunk();
   
     function readChunk() {
-      connectedMainStdErrLogs = true;
       return reader.read().then(appendChunks);
     }
   

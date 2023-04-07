@@ -268,8 +268,8 @@ function editPool(id){
     document.getElementById('desiredReplicas').value = pool["desiredReplicas"];
     document.getElementById('rollingUpdateMaxUnavailablePercentage').value = pool["rollingUpdateMaxUnavailablePercentage"];
     document.getElementById('rebootIntervalMinutes').value = pool["rebootIntervalMinutes"];
-    document.getElementById('warmupScript').value = atob(pool["warmupScript"]);
-    document.getElementById('startupScript').value = atob(pool["startupScript"]);
+    document.getElementById('warmupScript').value = atob(pool["warmupScript"].replaceAll('-','+').replaceAll('_','/'));
+    document.getElementById('startupScript').value = atob(pool["startupScript"].replaceAll('-','+').replaceAll('_','/'));
     document.getElementById('useLocalCacheDisk').value = pool["useLocalCacheDisk"];
     document.getElementById('metalEnabled').value = pool["metalEnabled"];
 
@@ -363,6 +363,8 @@ async function showMachine(id){
     document.getElementById('machine_logs_warmup_stderr').innerHTML = '';
     document.getElementById('machine_logs_main_stdout').innerHTML = '';
     document.getElementById('machine_logs_main_stderr').innerHTML = '';
+    connectedMainStdOutLogs = false;
+    connectedMainStdErrLogs = false;
     let machine = machines.machines.find((machine_type)=>machine_type.id==id)
     if(!machine){
         alert('Machine no longer exists reloading...');
@@ -482,7 +484,6 @@ function loadMainStdErr(machine){
         main_stderr.innerHTML = '';
 
         json = JSON.parse(response);
-        connectedMainStdErrLogs = true;
         let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
 
         main_stderr.innerHTML += formatted;
@@ -515,12 +516,10 @@ function loadMainStdOut(machine){
             console.error(err)
           },
         (response)=>{
-        main_stdout.innerHTML = '';
-
-        json = JSON.parse(response);
-        connectedMainStdOutLogs = true;
-        let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
-        main_stdout.innerHTML += formatted;
+            main_stdout.innerHTML = '';
+            json = JSON.parse(response);
+            let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
+            main_stdout.innerHTML += formatted;
     })
 }
 
@@ -556,8 +555,8 @@ async function savePool(id){
             "rollingUpdateMaxUnavailablePercentage": parseInt(rollingUpdateMaxUnavailablePercentage),
             // "parallelReplicasUpdatePercentage": rebootIntervalMinutes,
             "rebootIntervalMinutes": parseInt(rebootIntervalMinutes),
-            "warmupScript": btoa(warmupScript),
-            "startupScript": btoa(startupScript),
+            "warmupScript": btoa(warmupScript).replaceAll('+','-').replaceAll('/','_'),
+            "startupScript": btoa(startupScript).replaceAll('+','-').replaceAll('/','_'),
             "imageId": imageId,
             "machineTypeId": machineTypeId,
             "useLocalCacheDisk": useLocalCacheDisk == 'true' ? true : false,
@@ -571,8 +570,10 @@ async function savePool(id){
             "rollingUpdateMaxUnavailablePercentage": parseInt(rollingUpdateMaxUnavailablePercentage),
             // "parallelReplicasUpdatePercentage": rebootIntervalMinutes,
             "rebootIntervalMinutes": parseInt(rebootIntervalMinutes),
-            "warmupScript": btoa(warmupScript),
-            "startupScript": btoa(startupScript),
+            //-> in the resulting string, replace + with - (dash)
+            //-> in the resulting string, replace / with _  (underscore)
+            "warmupScript": btoa(warmupScript).replaceAll('+','-').replaceAll('/','_'),
+            "startupScript": btoa(startupScript).replaceAll('+','-').replaceAll('/','_'),
             "imageId": imageId,
             "machineTypeId": machineTypeId,
             "useLocalCacheDisk": useLocalCacheDisk == 'true' ? true : false,
