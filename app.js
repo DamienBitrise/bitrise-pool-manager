@@ -6,6 +6,7 @@ let json_buffer_main_stdout = "";
 let json_buffer_main_stderr = "";
 let json_buffer_warmup_stdout = "";
 let json_buffer_warmup_stderr = "";
+let active_machine = null;
 if(!orgSlug){
     let localStorageSlug = window.localStorage.getItem('orgSlug');
     if(localStorageSlug){
@@ -359,6 +360,7 @@ async function showPool(id){
 
 async function showMachine(id){
     hideAll();
+    active_machine = id;
     document.getElementById('machine_logs_warmup_stdout').innerHTML = '';
     document.getElementById('machine_logs_warmup_stderr').innerHTML = '';
     document.getElementById('machine_logs_main_stdout').innerHTML = '';
@@ -393,11 +395,11 @@ async function showMachine(id){
 
     warmup_stdout.innerHTML = '';
     loadLogs(log_path, (res)=>{ 
-            processChunkedResponseWarmupSTDOUT(res, 
-                (response)=>{
+            processChunkedResponseWarmupSTDOUT(id, res, 
+                (machine, response)=>{
                     try{
                         let json = JSON.parse(response);
-                        if(json.result.logContent){
+                        if(json.result.logContent && machine == active_machine){
                             let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
                             warmup_stdout.innerHTML += formatted;
                         }
@@ -420,11 +422,11 @@ async function showMachine(id){
 
     warmup_stderr.innerHTML = '';
     loadLogs(log_path2, (res)=>{
-            processChunkedResponseWarmupSTDERR(res, 
-                (response)=>{
+            processChunkedResponseWarmupSTDERR(id, res, 
+                (machine, response)=>{
                     try{
                         let json = JSON.parse(response);
-                        if(json.result.logContent){
+                        if(json.result.logContent && machine == active_machine){
                             let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
                             warmup_stderr.innerHTML += formatted;
                         }
@@ -463,11 +465,11 @@ function loadMainStdErr(machine){
 
     main_stderr.innerHTML = '';
     loadLogs(log_path2, (res)=>{ 
-        processChunkedResponseMainSTDERR(res, 
-            (response)=>{
+        processChunkedResponseMainSTDERR(machine.id, res, 
+            (machine, response)=>{
                 try{
                     json = JSON.parse(response);
-                    if(json.result.logContent){
+                    if(json.result.logContent && machine == active_machine){
                         connectedMainStdErrLogs = true;
                         let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
                         main_stderr.innerHTML += formatted;
@@ -499,10 +501,11 @@ function loadMainStdOut(machine){
 
     main_stdout.innerHTML = '';
     loadLogs(log_path2, (res)=>{
-        processChunkedResponseMainSTDOUT(res, (response)=>{
+        processChunkedResponseMainSTDOUT(machine.id, res, 
+            (machine, response)=>{
                 try{
                     json = JSON.parse(response);
-                    if(json.result.logContent){
+                    if(json.result.logContent && machine == active_machine){
                         connectedMainStdOutLogs = true;
                         let formatted = json.result.logContent.replace('\n', '<br>').replace('\r', '<br>')
                         main_stdout.innerHTML += formatted;

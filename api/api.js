@@ -435,7 +435,7 @@ function onChunkedResponseComplete(result) {
     console.error(err)
   }
   
-  function processChunkedResponseWarmupSTDOUT(response, callback) {
+  function processChunkedResponseWarmupSTDOUT(machine, response, callback) {
     var text = '';
     var reader = response.body.getReader()
     var decoder = new TextDecoder();
@@ -456,7 +456,7 @@ function onChunkedResponseComplete(result) {
             try{
                 let parsed = '{"result":' + part;
                 JSON.parse(parsed);
-                callback(parsed);
+                callback(machine, parsed);
                 var index = remainingIndecies.indexOf(index);
                 if (index !== -1) {
                     remainingIndecies.splice(index, 1);
@@ -477,7 +477,7 @@ function onChunkedResponseComplete(result) {
         // console.log('Adding back remaining index', text);
       })
       if (result.done) {
-        callback(text);
+        callback(machine, text);
         return text;
       } else {
         return readChunk();
@@ -485,7 +485,7 @@ function onChunkedResponseComplete(result) {
     }
   }
 
-  function processChunkedResponseWarmupSTDERR(response, callback) {
+  function processChunkedResponseWarmupSTDERR(machine, response, callback) {
     var text = '';
     var reader = response.body.getReader()
     var decoder = new TextDecoder();
@@ -506,7 +506,7 @@ function onChunkedResponseComplete(result) {
             try{
                 let parsed = '{"result":' + part;
                 JSON.parse(parsed);
-                callback(parsed);
+                callback(machine, parsed);
                 var index = remainingIndecies.indexOf(index);
                 if (index !== -1) {
                     remainingIndecies.splice(index, 1);
@@ -527,7 +527,7 @@ function onChunkedResponseComplete(result) {
         // console.log('Adding back remaining index', text);
       })
       if (result.done) {
-        callback(text);
+        callback(machine, text);
         return text;
       } else {
         return readChunk();
@@ -535,7 +535,7 @@ function onChunkedResponseComplete(result) {
     }
   }
 
-  function processChunkedResponseMainSTDOUT(response, callback) {
+  function processChunkedResponseMainSTDOUT(machine, response, callback) {
     var text = '';
     var reader = response.body.getReader()
     var decoder = new TextDecoder();
@@ -556,7 +556,7 @@ function onChunkedResponseComplete(result) {
             try{
                 let parsed = '{"result":' + part;
                 JSON.parse(parsed);
-                callback(parsed);
+                callback(machine, parsed);
                 var index = remainingIndecies.indexOf(index);
                 if (index !== -1) {
                     remainingIndecies.splice(index, 1);
@@ -577,7 +577,7 @@ function onChunkedResponseComplete(result) {
         // console.log('Adding back remaining index', text);
       })
       if (result.done) {
-        callback(text);
+        callback(machine, text);
         return text;
       } else {
         return readChunk();
@@ -585,7 +585,7 @@ function onChunkedResponseComplete(result) {
     }
   }
 
-  function processChunkedResponseMainSTDERR(response, callback) {
+  function processChunkedResponseMainSTDERR(machine, response, callback) {
     var text = '';
     var reader = response.body.getReader()
     var decoder = new TextDecoder();
@@ -606,7 +606,7 @@ function onChunkedResponseComplete(result) {
               try{
                   let parsed = '{"result":' + part;
                   JSON.parse(parsed);
-                  callback(parsed);
+                  callback(machine, parsed);
                   var index = remainingIndecies.indexOf(index);
                   if (index !== -1) {
                       remainingIndecies.splice(index, 1);
@@ -627,7 +627,7 @@ function onChunkedResponseComplete(result) {
         //   console.log('Adding back remaining index', text);
         })
         if (result.done) {
-            callback(text);
+            callback(machine, text);
             return text;
         } else {
             return readChunk();
